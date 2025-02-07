@@ -1,0 +1,75 @@
+body{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+header, section, footer{
+    margin: 10px;
+}
+
+nav ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+h1{
+    text-align: center;
+}
+
+li{
+    margin: 0 10px;
+}
+
+section{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 500px;
+}
+
+.calendar{
+    width: 1200px;
+    height: auto;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+
+.calendar div{
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+
+.nav-button{
+    margin: 20px;
+}
+
+.days{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.day{
+    text-align: center;
+    padding: 5px;
+}
+
+.nav-button{
+    text-align: center;
+}
+
+.dates{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
