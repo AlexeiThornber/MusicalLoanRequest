@@ -3,6 +3,8 @@ body{
     padding: 0;
     display: flex;
     flex-direction: column;
+    height: 100vh;
+
 }
 
 header, section, footer{
@@ -17,8 +19,9 @@ nav ul{
     justify-content: flex-end;
 }
 
-h1{
+h2{
     text-align: center;
+    margin: 0;
 }
 
 li{
@@ -27,15 +30,14 @@ li{
 
 section{
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;
-    height: 500px;
+    height: 100%;
 }
 
 .calendar{
-    width: 1200px;
-    height: auto;
-    padding: 30px;
+    width: 90%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -44,19 +46,26 @@ section{
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-
 .calendar div{
     width: 100%;
-    padding: 10px;
-    text-align: center;
 }
 
-.nav-button{
+.calendar_header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.button{
     margin: 20px;
+    text-align: center;
 }
 
 .days{
     display: grid;
+    align-items: center;
+    text-align: center;
     grid-template-columns: repeat(7, 1fr);
 }
 
@@ -65,11 +74,52 @@ section{
     padding: 5px;
 }
 
-.nav-button{
-    text-align: center;
-}
-
 .dates{
     display: grid;
     grid-template-columns: repeat(7, 1fr);
+}
+
+.date{
+    display: flex;
+    margin: 5px 0px 5px 0px;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    background-color: aliceblue;
+    border: 1px solid black;
+    border-radius: 2px;
+}
+
+/* This customises every div inside the dates (the hours) */
+.date div{
+    height: 100%;
+}
+
+/* .zero{
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+.twenty{
+    border-bottom: 1px solid black;
+} */
+
+.date p{
+    text-align: center;
+    margin: 0;
+}
+
+#monthYear{
+    text-align: center;
+    margin: 10px;
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.calendar_header, .days, .createEvent{
+    flex-grow: 1;
+}
+
+.dates{
+    flex-grow: 10;
 }

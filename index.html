@@ -14,34 +14,33 @@
                     <li>Main website</li>
                 </ul>
             </nav>
-            <h1>Musical loan requests calendar</h1>       
+            <h2>Musical loan requests calendar</h2>       
         </header>
         <section>
-            <div>
-                <button id="prevButton">Back</button>
-            </div>
             <div class = "calendar">
-                <div class = "calendar_content">
+                <div class = "calendar_header">
+                    <div class = "button navButton">
+                        <button id="prevButton">Back</button>
+                    </div>
                     <div id = "monthYear">
                     </div>
-                    <div class = "days">
-                        <div class = "day">Mon</div>
-                        <div class = "day">Tue</div>
-                        <div class = "day">Wed</div>
-                        <div class = "day">Thu</div>
-                        <div class = "day">Fri</div>
-                        <div class = "day">Sat</div>
-                        <div class = "day">Sun</div>
+                    <div class = "button navButton">
+                        <button id="nextButton">Next</button>
                     </div>
-                    <div class="dates" id="dates"></div>
                 </div>
-                <div>
+                <div class = "days">
+                    <div class = "day">Mon</div>
+                    <div class = "day">Tue</div>
+                    <div class = "day">Wed</div>
+                    <div class = "day">Thu</div>
+                    <div class = "day">Fri</div>
+                    <div class = "day">Sat</div>
+                    <div class = "day">Sun</div>
+                </div>
+                <div class="dates" id="dates"></div>
+                <div class = "button createEvent">
                     <button>Create an event</button>
                 </div>
-            </div>
-
-            <div>
-                <button id="nextButton">Next</button>
             </div>
         </section>
         <footer>
