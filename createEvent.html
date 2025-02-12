@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Loan request Musical - Create Event</title>
+        <link rel="stylesheet" href="createEvent.css">
+        <script src = "itemList.js" type = "module"></script>
+        <script src = "createEvent.js" type = "module"></script>
+    </head>
+    <body>
+        <section>
+            <h2>Create an event</h2>
+            <form class="form">
+                <div class = "main input-box">
+                    <label for="eventTitle">Event title</label>
+                    <input type="text" id="eventTitle" name="eventTitle" required>
+                </div>
+                <div class = "main input-box">
+                    <label for="beneficiary">Beneficiary</label>
+                    <input type="text" id="beneficiary" name="beneficiary" required>
+                </div>
+                <div class = "main date-container">
+                    <div class = "date">
+                        <div class = "date-start">
+                            <label for="eventDateStart">Event date start</label>
+                            <input type="date" id="eventDateStart" name="eventDate" required>
+                        </div>
+                        <div class="time-start">
+                            <label for="eventTimeStart">Event time start</label>
+                            <input type="time" id="eventTimeStart" name="eventTime" required>
+                        </div>
+                    </div>
+                    <div class = "date">
+                        <div class = "date-end">
+                            <label for="eventDateEnd">Event date end</label>
+                            <input type="date" id="eventDateEnd" name="eventDate" required>
+                        </div>
+                        <div class = "time-end"> 
+                            <label for="eventTimeEnd">Event time end</label>
+                            <input type="time" id="eventTimeEnd" name="eventTime" required>
+                        </div>
+                    </div>
+                </div>
+                <div class = "main main-button">
+                    <button onclick="">Add Item</button>
+                    <ul>
+                    </ul>
+                </div>
+                <div class = "main description">
+                    <label for="eventDescription">Event description</label>
+                    <textarea id="eventDescription" name="eventDescription" rows = "3"></textarea>
+                </div>
+                <div class = "main bottom-buttons">
+                    <div class = "second-button">
+                        <button onclick="goBack()">Cancel</button>
+                    </div>
+                    <div class = "main-button">
+                        <button type="submit">Create event</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </body>
+</html>

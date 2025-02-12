@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Ubuntu", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+body{
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #f9f9f9;
+}
+
+h2{
+    /* margin: 0px 0px 50px 0px; */
+    font-size: 2rem;
+    text-align: center;
+}
+
+section{
+    position: relative;
+    max-width: 1200px;
+    width: 100%;
+    padding: 25px;
+    border-radius: 20px;
+    background-color: aliceblue;
+    box-shadow: 0 0 15px rgba(0, 0 ,0, 0.1);
+    color : #333;
+}
+
+.main{
+    padding: 20px;
+}
+
+.form .input-box{
+    width: 100%;
+}
+
+.input-box input, .date input, .description textarea{
+    position: relative;
+    height: 40px;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+    margin-top: 10px;
+    color: #707070;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 15px;
+}
+
+.date-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    column-gap: 30px;
+}
+
+.date-container .date{
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+}
+
+.date div{
+    text-align: center;
+    padding: 20px;
+}
+
+.description textarea{
+    resize: none;
+    height: auto;
+}
+
+.bottom-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.main-button{
+    text-align: center;
+}
+
+.main-button button, .second-button button{
+    position: relative;
+    background-color: #6191d8;
+    padding: 10px 22px;
+    border-radius: 6px;
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    box-shadow: 0 5px, 10px, rgba(0, 0 ,0, 0.1);
+}
+
+/* Overwrite the colors of the primary buttons */
+.second-button button{
+    background-color: #dbdbdb;
+    color: #707070;
+}
+
+.main-button button:active, .second-button button:active{
+    transform: scale(0.90);
+}
