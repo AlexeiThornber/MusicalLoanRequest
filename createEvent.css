@@ -90,7 +90,32 @@ section{
     text-align: center;
 }
 
-.main-button button, .second-button button{
+li {
+    list-style-type: none;
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    position: relative;
+}
+
+li .quantity{
+    position: absolute;
+    right: 10px;
+}
+
+li .remove {
+    position: absolute;
+    left: 10px;
+    background-color: rgb(250, 107, 107);
+    width: 18px;
+    padding: 0px;
+    color: white;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+.main-button button, .second-button button, .controls button{
     position: relative;
     background-color: #6191d8;
     padding: 10px 22px;
@@ -105,11 +130,127 @@ section{
 }
 
 /* Overwrite the colors of the primary buttons */
-.second-button button{
+.second-button button, .controls .close-button{
     background-color: #dbdbdb;
     color: #707070;
 }
 
-.main-button button:active, .second-button button:active{
+.main-button button:active, .second-button button:active, .controls button:active{
     transform: scale(0.90);
 }
+
+.popup{
+    min-width: 800px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    background-color:aliceblue;
+    translate: -50% -50%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none; /*hide by default*/
+    /* opacity: 0;
+    transition: opacity 10s ease; */
+}
+
+.popup.active {
+    display: block; /* Show when active */
+    opacity: 1;
+}
+
+.overlay{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    /* opacity: 0;
+    transition: opacity 0.3s ease; */
+}
+
+.popup div{
+    padding: 10px;
+}
+
+.popup .popup-content{
+    display: flex;
+    flex-direction: column;
+}
+
+.overlay.active{
+    display: block;
+    opacity: 1;
+}
+
+.controls{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.popup-content .selectors{
+    display: flex;
+    justify-content: flex-end;
+
+}
+
+.popup-content select{
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    color: #707070;
+}
+
+#radio-buttons{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+/* .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.overlay.active {
+    display: block;
+} */
+
+/*.popup .popup-content{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.15);
+    width: 95%;
+    max-width: 350px;
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 20px;
+    opacity: 0;
+    box-shadow: 0px 2px 2px 5px rgba(0,0,0, 0.05);
+    transition: all 300ms ease-in-out; 
+}
+
+.popup.active{
+    top: 0px;
+    transition: top 0ms ease-in-out 0ms;
+}
+
+.popup.active .overlay{
+    opacity: 1;
+    transition: all 300ms ease-in-out;
+}
+
+.popup.active .popup-content{
+    transform:translate();
+} */
