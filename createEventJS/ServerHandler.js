@@ -6,19 +6,19 @@ import { getFirestore, collection, addDoc, Timestamp } from "https://www.gstatic
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
-apiKey: "AIzaSyDqdd0AYy50IRT-MFPCzmwR0ZHHJYrl9Z8",
-authDomain: "musicalloanrequests.firebaseapp.com",
-projectId: "musicalloanrequests",
-storageBucket: "musicalloanrequests.firebasestorage.app",
-messagingSenderId: "713902726859",
-appId: "1:713902726859:web:25cde11bb242148cfa054e"
+export const firebaseConfig = {
+  apiKey: "AIzaSyDqdd0AYy50IRT-MFPCzmwR0ZHHJYrl9Z8",
+  authDomain: "musicalloanrequests.firebaseapp.com",
+  projectId: "musicalloanrequests",
+  storageBucket: "musicalloanrequests.firebasestorage.app",
+  messagingSenderId: "713902726859",
+  appId: "1:713902726859:web:25cde11bb242148cfa054e"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 
 document.getElementById("create-event").addEventListener('click', async () =>{

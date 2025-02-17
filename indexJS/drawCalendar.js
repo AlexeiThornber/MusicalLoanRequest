@@ -1,14 +1,16 @@
+import { drawEvents } from "./eventHandler.js";
+
 const monthYearElem = document.getElementById('monthYear');
 const datesElem = document.getElementById('dates');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 
-const dateContent = `<div class = "zero"></div>
+const dateContent = `<div class = "one"></div>
+        <div class = "two"></div>
+        <div class = "three"></div>
         <div class = "four"></div>
-        <div class = "eight"></div>
-        <div class = "twelve"></div>
-        <div class = "sixteen"></div>
-        <div class = "twenty"></div>`
+        <div class = "five"></div>
+        <div class = "six"></div>`
 
 let currentDate = new Date(); //this behaves like a global variable
 
@@ -27,22 +29,27 @@ const updateCalendar = () => {
 
     let datesHTML = '';
 
-    console.log(firstDayIndex);
+    // console.log(firstDayIndex);
 
     for (let i = firstDayIndex; i > 0; i--) {
         const prevDate = new Date(currentYear, currentMonth, 0 - i);
-        datesHTML += `<div class = "date date_inactive"><p>${prevDate.getDate()}</p>${dateContent}</div>`;
+        datesHTML += `<div class = "date date_inactive" id = "${prevDate.getDate() + 1}_${prevDate.getMonth() + 1}_${prevDate.getFullYear()}">
+        <p>${prevDate.getDate() + 1}</p>${dateContent}</div>`;
     }
 
     for (let i = 1; i <= totalDays; i++){
         const date = new Date(currentYear, currentMonth, i);
         const activeClass = date.toDateString() === new Date().toDateString() ? 'active' : '';
-        datesHTML += `<div class = "date date_${activeClass}"><p>${i}</p>${dateContent}</div>`
+        const isSunday = date.getDay() === 0 ? "Sun" : "";
+        datesHTML += `<div class = "date date_${activeClass} ${isSunday}" id = "${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}">
+        <p>${i}</p>${dateContent}</div>`
     }
 
     for(let i = 1; i <= 7 - lastDayIndex; i++){
         const nextDate = new Date(currentYear, currentMonth + 1, i);
-        datesHTML += `<div class = "date date_inactive"><p>${nextDate.getDate()}</p>${dateContent}</div>`;
+        const isSunday = nextDate.getDay() === 0 ? "Sun" : "";
+        datesHTML += `<div class = "date date_inactive ${isSunday}" id = "${nextDate.getDate()}_${nextDate.getMonth() + 1}_${nextDate.getFullYear()}">
+        <p>${nextDate.getDate()}</p>${dateContent}</div>`;
     }
 
     datesElem.innerHTML = datesHTML;
@@ -51,16 +58,19 @@ const updateCalendar = () => {
 prevButton.addEventListener('click', () => {
     currentDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
     updateCalendar();
+    drawEvents();
+
 });
 
 nextButton.addEventListener('click', () => {
     currentDate = new Date(currentDate.setMonth(currentDate.getMonth() + 1));
     updateCalendar();
+    drawEvents();
 });
 
 updateCalendar();
 
-function switchPage(){
+document.getElementById("switchPage").addEventListener('click', () => {
     window.location.href = "createEvent.html";
-}
+})
 

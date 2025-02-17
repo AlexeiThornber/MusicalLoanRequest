@@ -4,7 +4,8 @@
         <meta charset="UTF-8">
         <title>Loan request Musical - Home</title>
         <link rel="stylesheet" href="index.css">
-        <script src="drawCalendar.js" defer></script>
+        <script src="indexJS/drawCalendar.js" defer type = "module"></script>
+        <script src="indexJS/eventHandler.js" defer type = "module"></script>
     </head>
 
     <body>
@@ -41,7 +42,7 @@
                 <div class="dates" id="dates">
                 </div>
                 <div class = "button createEvent">
-                    <button onclick="switchPage()">Create an event</button>
+                    <button id="switchPage">Create an event</button>
                 </div>
             </div>
         </section>
