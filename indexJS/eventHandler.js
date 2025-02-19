@@ -1,6 +1,7 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+import { displayedDates, convertDateToStringFormat } from "./drawCalendar.js";
 
 //Dupliocate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -17,7 +18,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 //All events loaded from firebase
-const listLoadedEvents = []
+const listLoadedEvents = [];
 
 //Proceed with sanitization
 document.addEventListener('DOMContentLoaded', async () => {
@@ -52,9 +53,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-export function drawEvents() {
-    listLoadedEvents.forEach(event => {
-        console.log(event);
+export function drawEvents(){
+
+    // console.log(listLoadedEvents);
+    // console.log(displayedDates);
+
+    //Filter the events that are not displayed
+    const displayedEvents = listLoadedEvents.filter((event) => isEventContainedOnPage(event));
+
+    // console.log(currentEvents);
+
+    displayedEvents.forEach(event => {
+        // console.log(event);
         // console.log(currentDate);
         // console.log(event.endDate);
         // while(currentDate.getDay() <= event.endDate.getDate()){
@@ -74,9 +84,8 @@ export function drawEvents() {
             let month = date.getMonth() + 1;
             let year = date.getFullYear();
 
-            let dayDiv = document.getElementById(day + "_" + month + "_" + year);
-            console.log(day + "_" + month + "_" + year);
-            customiseDiv(dayDiv, date, event);
+            let divId = document.getElementById(day + "_" + month + "_" + year);
+            customiseDiv(divId, date, event, displayedEvents);
         });
     })
 }
@@ -90,7 +99,7 @@ function iterateDates(startDate, endDate, callback) {
     }
 }
 
-function customiseDiv(div, currentDate, event){
+function customiseDiv(div, currentDate, event, displayedEvents){
     if (div) {
         let childDiv = div.querySelector('.one');
         if (childDiv){
@@ -103,4 +112,15 @@ function customiseDiv(div, currentDate, event){
         }
         childDiv.style.bord
     }
+}
+
+//Helper funtions to filter events
+function isEventContainedOnPage(event) {
+    return displayedDates.has(convertDateToStringFormat(event.startDate)) 
+    || displayedDates.has(convertDateToStringFormat(event.endDate));
+}
+
+//Helper function to check event conflicts
+function checkEventCollision(){
+    
 }
