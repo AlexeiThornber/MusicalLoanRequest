@@ -58,9 +58,6 @@ const updateCalendar = () => {
         <p>${nextDate.getDate()}</p>${dateContent}</div>`;
         displayedDates.add(convertDateToStringFormat(nextDate));
     }
-
-    console.log(displayedDates)
-
     datesElem.innerHTML = datesHTML;
 }
 
