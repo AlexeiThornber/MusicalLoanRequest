@@ -1,7 +1,7 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { displayedDates, convertDateToStringFormat } from "./drawCalendar.js";
+import { displayedDates, convertDateToString } from "./drawCalendar.js";
 
 //Dupliocate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -14,12 +14,12 @@ const firebaseConfig = {
 };
 
 const eventNumber = Object.freeze({
-    1 : "one",
-    2 : "two",
-    3 : "three",
-    4 : "four",
-    5 : "five",
-    6 : "six"
+    1 : { id : "one"  , color : "rgb(0, 100, 0)"   },
+    2 : { id : "two"  ,color : "rgb(0, 120, 0)"   },
+    3 : { id : "three",color : "rgb(0, 160, 0)"   },
+    4 : { id : "four" ,color : "rgb(0, 200, 0)"   },
+    5 : { id : "five" ,color : "rgb(0, 240, 0)"   },
+    6 : { id : "six" ,color : "rgb(0, 250, 0)"   },
 })
 
 // Initialize Firebase
@@ -69,9 +69,9 @@ export function drawEvents(){
     displayedEvents = listLoadedEvents.filter((event) => isEventContainedOnPage(event));
     displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate - event2.startDate);
 
-    console.log(displayedEvents);
+    // console.log(displayedEvents);
 
-    let processedEvents = [];
+    let processedEvents = [];   
 
     displayedEvents.forEach(event => {
         processedEvents.push(event);
@@ -101,9 +101,9 @@ function iterateDates(startDate, endDate, callback) {
 function customiseDiv(div, currentDate, event, collisionNum){
     if (div) {
         // console.log('.' + collisionNum);
-        let childDiv = div.querySelector('.' + collisionNum);
+        let childDiv = div.querySelector('.' + collisionNum.id);
         if (childDiv){
-            childDiv.style.backgroundColor = "green";
+            childDiv.style.backgroundColor = collisionNum.color;
             childDiv.style.zIndex = "10";
             if ((currentDate.getDate() !== event.endDate.getDate()) &&
                 !div.className.includes("Sun")) {
@@ -116,8 +116,8 @@ function customiseDiv(div, currentDate, event, collisionNum){
 
 //Helper funtions to filter events
 function isEventContainedOnPage(event) {
-    return displayedDates.has(convertDateToStringFormat(event.startDate)) 
-    || displayedDates.has(convertDateToStringFormat(event.endDate));
+    return displayedDates.has(convertDateToString(event.startDate)) 
+    || displayedDates.has(convertDateToString(event.endDate));
 }
 
 /**
@@ -127,8 +127,8 @@ function isEventContainedOnPage(event) {
  * If the startDate of the eventToCheck is in the  
  */
 function isEventContainedInAnother(eventComparedTo, eventToCheck){
-    return (convertDateToStringFormat(eventComparedTo.startDate) <= convertDateToStringFormat(eventToCheck.startDate))
-    && (convertDateToStringFormat(eventComparedTo.endDate)) >= convertDateToStringFormat(eventToCheck.startDate);
+    return (convertDateToString(eventComparedTo.startDate) <= convertDateToString(eventToCheck.startDate))
+    && (convertDateToString(eventComparedTo.endDate)) >= convertDateToString(eventToCheck.startDate);
 }
 
 //Helper function to check event conflicts
@@ -141,9 +141,7 @@ function checkEventCollision(event, processedEvents){
         }
     })
 
-    console.log(counter);
+    // console.log(counter);
 
     return eventNumber[counter];    
 }
-
-//Convert number to string

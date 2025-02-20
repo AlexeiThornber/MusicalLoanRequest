@@ -5,12 +5,6 @@ const datesElem = document.getElementById('dates');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 
-const dateContent = `<div class = "one"></div>
-        <div class = "two"></div>
-        <div class = "three"></div>
-        <div class = "four"></div>
-        <div class = "five"></div>
-        <div class = "six"></div>`
 
 let currentDate = new Date(); //this behaves like a global variable
 
@@ -37,9 +31,9 @@ const updateCalendar = () => {
     for (let i = firstDayIndex; i > 0; i--) {
         const prevDate = new Date(currentYear, currentMonth, 0 - i);
         datesHTML += `<div class = "date date_inactive" id = "${prevDate.getDate() + 1}_${prevDate.getMonth() + 1}_${prevDate.getFullYear()}">
-        <p>${prevDate.getDate() + 1}</p>${dateContent}</div>`;  
+        <p>${prevDate.getDate() + 1}</p></div>`;  
         prevDate.setDate(prevDate.getDate() + 1);
-        displayedDates.add( convertDateToStringFormat(prevDate));
+        displayedDates.add( convertDateToString(prevDate));
     }
 
     for (let i = 1; i <= totalDays; i++){
@@ -47,16 +41,16 @@ const updateCalendar = () => {
         const activeClass = date.toDateString() === new Date().toDateString() ? 'active' : '';
         const isSunday = date.getDay() === 0 ? "Sun" : "";
         datesHTML += `<div class = "date date_${activeClass} ${isSunday}" id = "${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}">
-        <p>${i}</p>${dateContent}</div>`
-        displayedDates.add(convertDateToStringFormat(date));
+        <p>${i}</p></div>`
+        displayedDates.add(convertDateToString(date));
     }
 
     for(let i = 1; i <= 7 - lastDayIndex; i++){
         const nextDate = new Date(currentYear, currentMonth + 1, i);
         const isSunday = nextDate.getDay() === 0 ? "Sun" : "";
         datesHTML += `<div class = "date date_inactive ${isSunday}" id = "${nextDate.getDate()}_${nextDate.getMonth() + 1}_${nextDate.getFullYear()}">
-        <p>${nextDate.getDate()}</p>${dateContent}</div>`;
-        displayedDates.add(convertDateToStringFormat(nextDate));
+        <p>${nextDate.getDate()}</p></div>`;
+        displayedDates.add(convertDateToString(nextDate));
     }
     datesElem.innerHTML = datesHTML;
 }
@@ -82,6 +76,6 @@ document.getElementById("switchPage").addEventListener('click', () => {
 
 
 //Helper funtions to convert dates to mm_dd_yyyy format
-export function convertDateToStringFormat(date){
+export function convertDateToString(date){
     return `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
 }
