@@ -1,7 +1,7 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { displayedDates, convertDateToString } from "./drawCalendar.js";
+import { displayedDates, convertDateToInt } from "./drawCalendar.js";
 
 //Dupliocate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -14,12 +14,12 @@ const firebaseConfig = {
 };
 
 const eventNumber = Object.freeze({
-    1 : { id : "one"  , color : "rgb(0, 100, 0)"   },
-    2 : { id : "two"  ,color : "rgb(0, 120, 0)"   },
-    3 : { id : "three",color : "rgb(0, 160, 0)"   },
-    4 : { id : "four" ,color : "rgb(0, 200, 0)"   },
-    5 : { id : "five" ,color : "rgb(0, 240, 0)"   },
-    6 : { id : "six" ,color : "rgb(0, 250, 0)"   },
+    color : "rgb(0, 100, 0)",
+    color : "rgb(0, 120, 0)",
+    color : "rgb(0, 160, 0)",
+    color : "rgb(0, 200, 0)",
+    color : "rgb(0, 240, 0)",
+    color : "rgb(0, 250, 0)",
 })
 
 // Initialize Firebase
@@ -50,7 +50,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 startDate: new Date(data.start.seconds * 1000), //*1000 to add the missing nanoseconds
                 endDate: new Date(data.end.seconds * 1000),
                 description: data.description,
-                items: mapItems
+                items: mapItems,
+                uid: data.uid
             }
 
             listLoadedEvents.push(loadedEvent);
@@ -69,55 +70,94 @@ export function drawEvents(){
     displayedEvents = listLoadedEvents.filter((event) => isEventContainedOnPage(event));
     displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate - event2.startDate);
 
-    // console.log(displayedEvents);
 
-    let processedEvents = [];   
-
-    displayedEvents.forEach(event => {
-        processedEvents.push(event);
-        let collisionNum = checkEventCollision(event, processedEvents);
-
-        iterateDates(event.startDate, event.endDate, (date) => {
-
-            let day = date.getDate();
-            let month = date.getMonth() + 1;
-            let year = date.getFullYear();
-
-            let divId = document.getElementById(day + "_" + month + "_" + year);
-            customiseDiv(divId, date, event, collisionNum);
-        });
+    let collisionEventsArray = [];
+    let collisionEvents = [displayedEvents[0]];
+    createCollisionArray(displayedEvents, 0, 1, collisionEvents, (arg) => {
+        collisionEventsArray.push(arg);
     })
+
+    collisionEventsArray.forEach((collisionEvents) => {
+        const dates = findLargestDates(collisionEvents); //this is a tuple
+        // const uids = collisionEvents.map(event => ({ uid: event.uid, title: event.title })); //this will have the uid of the events
+        iterateDates(dates[0], dates[1], (date) => {
+            // debugger;
+            const day = date.getDate();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
+            const divId = document.getElementById(day + "_" + month + "_" + year);
+            customiseDiv(divId, date, collisionEvents);
+        })
+
+    }) 
 }
+
+function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, callback){
+    if(!(idx2 < displayedEvents.length)){
+        callback(collisionEvents);
+        return;
+    }
+    if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
+        collisionEvents.push(displayedEvents[idx2]);
+        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+    }else{
+        callback(collisionEvents);
+        collisionEvents = [displayedEvents[idx2]];
+        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+    }
+}
+
 
 function iterateDates(startDate, endDate, callback) {
     let currentDate = new Date(startDate);
 
-    while (currentDate.getDate() <= endDate.getDate()) {
+    while (currentDate.getTime() <= endDate.getTime()) {
         callback(new Date(currentDate));
         currentDate.setDate(currentDate.getDate() + 1);
     }
 }
 
-function customiseDiv(div, currentDate, event, collisionNum){
-    if (div) {
-        // console.log('.' + collisionNum);
-        let childDiv = div.querySelector('.' + collisionNum.id);
-        if (childDiv){
-            childDiv.style.backgroundColor = collisionNum.color;
-            childDiv.style.zIndex = "10";
-            if ((currentDate.getDate() !== event.endDate.getDate()) &&
-                !div.className.includes("Sun")) {
-                childDiv.style.width = "110%";
-            }
+/**
+ * Customises the calendar date div with the number of events contained in the date 
+ * @param {*} divId The id of the modified calendar div (id = dd/mm/yyyy)
+ * @param {*} currentDate The current date of the modified calendar
+ */
+function customiseDiv(divId, currentDate, events){
+    if (divId) {
+        const childDiv = divId.querySelector(".date_content");
+        if(childDiv){
+            events.forEach((event) => {
+                const eventDiv = document.createElement("div");
+
+                eventDiv.setAttribute("id", event.uid);
+                eventDiv.setAttribute("class", "events");
+
+                eventDiv.style.backgroundColor = "green";
+
+                eventDiv.textContent = event.title;
+
+                if(currentDate.getTime() < event.startDate.getTime()
+                    || currentDate.getTime() > event.endDate.getTime() ){
+                    eventDiv.style.visibility = 'hidden';
+                }
+                if ((currentDate.getDate() !== event.endDate.getDate()) &&
+                    !divId.className.includes("Sun")) {
+                    eventDiv.style.width = "110%";
+                }
+
+                childDiv.append(eventDiv);
+                
+            })
         }
-        childDiv.style.bord
+        childDiv.style.zIndex = "10";
     }
 }
 
 //Helper funtions to filter events
+//TODO -> change this back to string 
 function isEventContainedOnPage(event) {
-    return displayedDates.has(convertDateToString(event.startDate)) 
-    || displayedDates.has(convertDateToString(event.endDate));
+    return displayedDates.has(convertDateToInt(event.startDate)) 
+    || displayedDates.has(convertDateToInt(event.endDate));
 }
 
 /**
@@ -127,21 +167,27 @@ function isEventContainedOnPage(event) {
  * If the startDate of the eventToCheck is in the  
  */
 function isEventContainedInAnother(eventComparedTo, eventToCheck){
-    return (convertDateToString(eventComparedTo.startDate) <= convertDateToString(eventToCheck.startDate))
-    && (convertDateToString(eventComparedTo.endDate)) >= convertDateToString(eventToCheck.startDate);
+    return (eventComparedTo.startDate <= eventToCheck.startDate)
+    && (eventComparedTo.endDate >= eventToCheck.startDate);
 }
 
-//Helper function to check event conflicts
-function checkEventCollision(event, processedEvents){
-    let counter = 0;
-    console.log(processedEvents);
-    processedEvents.forEach((prevEvent) => {
-        if(isEventContainedInAnother(prevEvent, event)){
-            counter ++;
+/**
+ * The objective is to find the largest dates between two events
+ * (start and end)
+ * 
+ * @param {*} event1 The "parent" event that sets the benchmark (its startDate will always be smaller than event2)
+ * @param {*} event2 The event to check
+ */
+function findLargestDates(collisionDates){
+    let dateS = collisionDates[0].startDate;
+    let dateE = collisionDates[0].endDate;
+    collisionDates.forEach((date) =>{
+        if( date.startDate.getTime() < dateS.getTime()){
+            dateS = date.startDate; 
+        }
+        if(date.endDate.getTime() > dateE.getTime()){
+            dateE = date.endDate;
         }
     })
-
-    // console.log(counter);
-
-    return eventNumber[counter];    
+    return [dateS, dateE];
 }

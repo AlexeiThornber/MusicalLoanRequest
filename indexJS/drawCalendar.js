@@ -31,9 +31,9 @@ const updateCalendar = () => {
     for (let i = firstDayIndex; i > 0; i--) {
         const prevDate = new Date(currentYear, currentMonth, 0 - i);
         datesHTML += `<div class = "date date_inactive" id = "${prevDate.getDate() + 1}_${prevDate.getMonth() + 1}_${prevDate.getFullYear()}">
-        <p>${prevDate.getDate() + 1}</p></div>`;  
+        <div class = "date_num">${prevDate.getDate() + 1}</div><div class = "date_content"></div></div>`;  
         prevDate.setDate(prevDate.getDate() + 1);
-        displayedDates.add( convertDateToString(prevDate));
+        displayedDates.add( convertDateToInt(prevDate));
     }
 
     for (let i = 1; i <= totalDays; i++){
@@ -41,16 +41,16 @@ const updateCalendar = () => {
         const activeClass = date.toDateString() === new Date().toDateString() ? 'active' : '';
         const isSunday = date.getDay() === 0 ? "Sun" : "";
         datesHTML += `<div class = "date date_${activeClass} ${isSunday}" id = "${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}">
-        <p>${i}</p></div>`
-        displayedDates.add(convertDateToString(date));
+        <div class = "date_num">${i}</div><div class = "date_content"></div></div>`
+        displayedDates.add(convertDateToInt(date));
     }
 
     for(let i = 1; i <= 7 - lastDayIndex; i++){
         const nextDate = new Date(currentYear, currentMonth + 1, i);
         const isSunday = nextDate.getDay() === 0 ? "Sun" : "";
         datesHTML += `<div class = "date date_inactive ${isSunday}" id = "${nextDate.getDate()}_${nextDate.getMonth() + 1}_${nextDate.getFullYear()}">
-        <p>${nextDate.getDate()}</p></div>`;
-        displayedDates.add(convertDateToString(nextDate));
+        <div class = "date_num">${nextDate.getDate()}</div><div class = "date_content"></div></div>`;
+        displayedDates.add(convertDateToInt(nextDate));
     }
     datesElem.innerHTML = datesHTML;
 }
@@ -76,6 +76,6 @@ document.getElementById("switchPage").addEventListener('click', () => {
 
 
 //Helper funtions to convert dates to mm_dd_yyyy format
-export function convertDateToString(date){
+export function convertDateToInt(date){
     return `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
 }
