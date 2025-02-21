@@ -1,7 +1,7 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { displayedDates, convertDateToInt } from "./drawCalendar.js";
+import { displayedDates, convertDateToString } from "./drawCalendar.js";
 
 //Dupliocate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -79,7 +79,6 @@ export function drawEvents(){
 
     collisionEventsArray.forEach((collisionEvents) => {
         const dates = findLargestDates(collisionEvents); //this is a tuple
-        // const uids = collisionEvents.map(event => ({ uid: event.uid, title: event.title })); //this will have the uid of the events
         iterateDates(dates[0], dates[1], (date) => {
             // debugger;
             const day = date.getDate();
@@ -132,15 +131,13 @@ function customiseDiv(divId, currentDate, events){
                 eventDiv.setAttribute("id", event.uid);
                 eventDiv.setAttribute("class", "events");
 
-                eventDiv.style.backgroundColor = "green";
-
                 eventDiv.textContent = event.title;
 
                 if(currentDate.getTime() < event.startDate.getTime()
                     || currentDate.getTime() > event.endDate.getTime() ){
                     eventDiv.style.visibility = 'hidden';
                 }
-                if ((currentDate.getDate() !== event.endDate.getDate()) &&
+                if (convertDateToString(currentDate) !== convertDateToString(event.endDate) &&
                     !divId.className.includes("Sun")) {
                     eventDiv.style.width = "110%";
                 }
@@ -156,8 +153,8 @@ function customiseDiv(divId, currentDate, events){
 //Helper funtions to filter events
 //TODO -> change this back to string 
 function isEventContainedOnPage(event) {
-    return displayedDates.has(convertDateToInt(event.startDate)) 
-    || displayedDates.has(convertDateToInt(event.endDate));
+    return displayedDates.has(convertDateToString(event.startDate)) 
+    || displayedDates.has(convertDateToString(event.endDate));
 }
 
 /**

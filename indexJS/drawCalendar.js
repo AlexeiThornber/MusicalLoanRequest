@@ -33,7 +33,7 @@ const updateCalendar = () => {
         datesHTML += `<div class = "date date_inactive" id = "${prevDate.getDate() + 1}_${prevDate.getMonth() + 1}_${prevDate.getFullYear()}">
         <div class = "date_num">${prevDate.getDate() + 1}</div><div class = "date_content"></div></div>`;  
         prevDate.setDate(prevDate.getDate() + 1);
-        displayedDates.add( convertDateToInt(prevDate));
+        displayedDates.add( convertDateToString(prevDate));
     }
 
     for (let i = 1; i <= totalDays; i++){
@@ -42,7 +42,7 @@ const updateCalendar = () => {
         const isSunday = date.getDay() === 0 ? "Sun" : "";
         datesHTML += `<div class = "date date_${activeClass} ${isSunday}" id = "${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}">
         <div class = "date_num">${i}</div><div class = "date_content"></div></div>`
-        displayedDates.add(convertDateToInt(date));
+        displayedDates.add(convertDateToString(date));
     }
 
     for(let i = 1; i <= 7 - lastDayIndex; i++){
@@ -50,7 +50,7 @@ const updateCalendar = () => {
         const isSunday = nextDate.getDay() === 0 ? "Sun" : "";
         datesHTML += `<div class = "date date_inactive ${isSunday}" id = "${nextDate.getDate()}_${nextDate.getMonth() + 1}_${nextDate.getFullYear()}">
         <div class = "date_num">${nextDate.getDate()}</div><div class = "date_content"></div></div>`;
-        displayedDates.add(convertDateToInt(nextDate));
+        displayedDates.add(convertDateToString(nextDate));
     }
     datesElem.innerHTML = datesHTML;
 }
@@ -76,6 +76,6 @@ document.getElementById("switchPage").addEventListener('click', () => {
 
 
 //Helper funtions to convert dates to mm_dd_yyyy format
-export function convertDateToInt(date){
+export function convertDateToString(date){
     return `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
 }
