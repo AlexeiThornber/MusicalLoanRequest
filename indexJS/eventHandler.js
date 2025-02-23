@@ -80,7 +80,6 @@ export function drawEvents(){
     collisionEventsArray.forEach((collisionEvents) => {
         const dates = findLargestDates(collisionEvents); //this is a tuple
         iterateDates(dates[0], dates[1], (date) => {
-            // debugger;
             const day = date.getDate();
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
@@ -131,7 +130,9 @@ function customiseDiv(divId, currentDate, events){
                 eventDiv.setAttribute("id", event.uid);
                 eventDiv.setAttribute("class", "events");
 
-                eventDiv.textContent = event.title;
+                const eventTitle = document.createElement("p");
+
+                eventTitle.textContent = event.title;
 
                 if(currentDate.getTime() < event.startDate.getTime()
                     || currentDate.getTime() > event.endDate.getTime() ){
@@ -142,6 +143,11 @@ function customiseDiv(divId, currentDate, events){
                     eventDiv.style.width = "110%";
                 }
 
+                eventDiv.addEventListener('click', () => {
+                    window.location.href = `createEvent.html?id=${event.uid}`
+                })
+                
+                eventDiv.append(eventTitle);
                 childDiv.append(eventDiv);
                 
             })
@@ -176,6 +182,9 @@ function isEventContainedInAnother(eventComparedTo, eventToCheck){
  * @param {*} event2 The event to check
  */
 function findLargestDates(collisionDates){
+    if(collisionDates == null ){
+        return;
+    }
     let dateS = collisionDates[0].startDate;
     let dateE = collisionDates[0].endDate;
     collisionDates.forEach((date) =>{

@@ -26,7 +26,14 @@ radioButtons.forEach(radioButton => {
                 addHTMLQuantity(Sonorisation.FACADE_SCENE)
                 break;
             case "Microphones":
-                addHTMLOptions(Micros);
+                addHTMLOptions(Micros); const urlParams = Array.from(new URLSearchParams(window.location.search).entries());
+
+                if(urlParams.length != 0){
+                  modifyToEditEvent();
+                  const eventData = loadEventToEdit(urlParams[0][1]);
+                  eventData.then(event => showLoadedEvent(event));
+              
+                }
                 addHTMLQuantity(Micros.PIED_MICRO)
                 break;
             case "Cables":
@@ -105,13 +112,13 @@ window.addHTMLOptions = addHTMLOptions;
  */
 
 export function saveSelection(){
-    let itemSelection = document.getElementById("item-selector");
-    let selectedItem = itemSelection.options[itemSelection.selectedIndex];
+    const itemSelection = document.getElementById("item-selector");
+    const selectedItem = itemSelection.options[itemSelection.selectedIndex];
 
     //If the item is not yet contained in the set, then we proceed adding it
     if(!mapSelectedItems.has(selectedItem.value)){
-        let quantitySelector = document.getElementById("quantity");
-        let selectedQuantity = quantitySelector.value;
+        const quantitySelector = document.getElementById("quantity");
+        const selectedQuantity = quantitySelector.value;
 
 
         mapSelectedItems.set(selectedItem.value, selectedQuantity);
@@ -126,7 +133,7 @@ export function saveSelection(){
         </li>`
     
         list.innerHTML += newItemHTML; 
-        console.log(mapSelectedItems);
+        // console.log(mapSelectedItems);
     }
 }
 
