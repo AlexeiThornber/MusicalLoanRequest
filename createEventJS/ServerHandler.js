@@ -1,7 +1,7 @@
 import { mapSelectedItems, saveSelection } from "./HTMLHandler.js";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, getDoc, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { keyToValueConverter } from '../itemList.js';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if(urlParams.length != 0){
     modifyToEditEvent();
-    const eventData = loadEventToEdit(urlParams[0][1]);
     eventUID = urlParams[0][1];
+    const eventData = loadEventToEdit(eventUID);
     eventData.then(event => showLoadedEvent(event));
 
   }
@@ -42,7 +42,7 @@ document.getElementById("create-event").addEventListener('click', async () =>{
     event.preventDefault();
 
     const title = document.getElementById("eventTitle").value;    
-    const beneficiary = document.getElementById("beneficiary").value;        
+    const beneficiary = document.getElementById("beneficiary").value;      // console.log("caca");      
     const startDate = document.getElementById("eventDateStart").value;
     const startTime = document.getElementById("eventTimeStart").value;    
     const endDate = document.getElementById("eventDateEnd").value;
@@ -143,7 +143,6 @@ function showLoadedEvent(event){
   document.getElementById("eventDateEnd").value = endDate.toISOString().split('T')[0];
   document.getElementById("eventTimeEnd").value = endDate.toTimeString().split(' ')[0].substring(0, 5);
 
-  console.log(mapSelectedItems);
 }
 
 function modifyToEditEvent(){
@@ -151,4 +150,20 @@ function modifyToEditEvent(){
   pageTitle.textContent = "Edit event"; 
   const saveButton = document.getElementById("create-event");
   saveButton.textContent = "Save Changes";
+
+  //Add a delete button
+  addDeleteButton();
+
+}
+
+function addDeleteButton(){
+  const bottomButtons = document.querySelector(".bottom-buttons");
+  const newButtonDiv = `<div class = "delete-button"><button id = "del-button">Delete Event</button></div>`
+  bottomButtons. innerHTML += newButtonDiv;
+
+  document.getElementById("del-button").addEventListener('click', async (e) => {
+    await deleteDoc(doc(db, "events", eventUID));
+    alert("Succefully deleted document with id: " + eventUID )
+    window.location.href = "index.html";
+  })
 }

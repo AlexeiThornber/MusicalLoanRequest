@@ -115,7 +115,7 @@ li .remove {
     cursor: pointer;
 }
 
-.main-button button, .second-button button, .controls button{
+.main-button button, .second-button button, .controls button, .delete-button button{
     position: relative;
     background-color: #6191d8;
     padding: 10px 22px;
@@ -135,6 +135,14 @@ li .remove {
     color: #707070;
 }
 
+.delete-button button{
+    background-color: rgb(255, 42, 42);
+}
+
+.delete-button button:active{
+    transform: scale(0.90);
+}
+
 .main-button button:active, .second-button button:active, .controls button:active{
     transform: scale(0.90);
 }
@@ -151,8 +159,6 @@ li .remove {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     z-index: 1000;
     display: none; /*hide by default*/
-    /* opacity: 0;
-    transition: opacity 10s ease; */
 }
 
 .popup.active {
@@ -169,8 +175,6 @@ li .remove {
     z-index: 999;
     background: rgba(0, 0, 0, 0.5);
     display: none;
-    /* opacity: 0;
-    transition: opacity 0.3s ease; */
 }
 
 .popup div{
@@ -210,47 +214,3 @@ li .remove {
     display: flex;
     justify-content: space-evenly;
 }
-
-/* .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    display: none;
-}
-
-.overlay.active {
-    display: block;
-} */
-
-/*.popup .popup-content{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(1.15);
-    width: 95%;
-    max-width: 350px;
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 20px;
-    opacity: 0;
-    box-shadow: 0px 2px 2px 5px rgba(0,0,0, 0.05);
-    transition: all 300ms ease-in-out; 
-}
-
-.popup.active{
-    top: 0px;
-    transition: top 0ms ease-in-out 0ms;
-}
-
-.popup.active .overlay{
-    opacity: 1;
-    transition: all 300ms ease-in-out;
-}
-
-.popup.active .popup-content{
-    transform:translate();
-} */
