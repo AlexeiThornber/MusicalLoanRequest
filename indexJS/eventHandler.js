@@ -180,8 +180,8 @@ function isEventContainedOnPage(event) {
  * If the startDate of the eventToCheck is in the  
  */
 function isEventContainedInAnother(eventComparedTo, eventToCheck){
-    return (eventComparedTo.startDate.getTime() <= eventToCheck.startDate.getTime())
-    && (eventComparedTo.endDate.getTime() >= eventToCheck.startDate.getTime());
+    return (convertDateNoHours(eventComparedTo.startDate).getTime() <= convertDateNoHours(eventToCheck.startDate).getTime())
+    && (convertDateNoHours(eventComparedTo.endDate).getTime() >= convertDateNoHours(eventToCheck.startDate).getTime());
 }
 
 
