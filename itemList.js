@@ -3,6 +3,9 @@
  * @name : The name of the item/object.
  * @quantity : The quantity of the item that can be rented.
  */
+const itemCategories = ["Sound & Instruments", "Microphones", "Cables"];
+
+
 export const Sonorisation = Object.freeze({
     FACADE_SCENE: {name : "Façade scène agepoly (2 tops, 2 subs, tâble de mix analogue, 4x speaks-on, 2 pieds)", quantity : 1},
     EV_ACTIF: {name : "EV actives", quantity : 2},
@@ -46,7 +49,7 @@ export const Cables = Object.freeze({
     ENROULEURS: {name: "Enrouleurs", quantity: 2}
 })
 
-//Helper function
+//Helper functions
 export function keyToValueConverter(key, type){
     switch(type){
         case "Sound & Instruments":
@@ -55,5 +58,14 @@ export function keyToValueConverter(key, type){
             return Micros[key];
         case "Cables":
             return Cables[key];
+    }
+}
+
+export function getItem(key){
+    for(let cat of itemCategories){
+        let res = keyToValueConverter(key, cat);
+        if(res !== undefined){
+            return res;
+        }
     }
 }

@@ -2,6 +2,7 @@ import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/f
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { displayedDates, convertDateToString } from "./drawCalendar.js";
+import { getItem } from "../itemList.js";
 
 //Duplicate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -152,12 +153,12 @@ function customiseDiv(divId, currentDate, events){
                     window.location.href = `createEvent.html?id=${event.uid}`
                 })
 
-                const collisionEventsUids = checkItemCollision(event, index, events);
+                for(let i = index + 1; i < events.length; i++){
+                    if(checkItemCollision(event, events[i]) && event.endDate.getTime() > events[i].startDate.getTime()){
+                        eventDiv.style.backgroundColor = "red";
+                    }
+                }
 
-                collisionEventsUids.forEach((cEvent) => {
-
-                })
-                
                 eventDiv.append(eventTitle);
                 childDiv.append(eventDiv);
                 
@@ -200,17 +201,20 @@ function findLargestDates(collisionEvents){
     return [convertDateNoHours(dateS), convertDateNoHours(dateE)];
 }
 
-function checkItemCollision(event, idx, events){
-    const itemCollisionUid = new Set();
-    for(let i = idx + 1; i < events.length; i ++){
-        if (new Set(events[i].items.keys()).has(event.items.keys())) {
-            if(events[i].startDate.getTime() > event.endDate.getTime()){
-                itemCollisionUid.add(event);
-                itemCollisionUid.add(events[i]);
+function checkItemCollision(event1, event2){
+    const set1 = new Set(event1.items.keys());
+    const set2 = new Set(event2.items.keys());
+
+    for (let item of set1) {
+        if (set2.has(item)) {
+            let maxQuantity = getItem(item).quantity;
+            let actualQuantity = parseInt(event1.items.get(item)) + parseInt(event2.items.get(item));
+            if(actualQuantity > maxQuantity){
+                return true;
             }
         }
     }
-    return itemCollisionUid;
+    return false;
 }
 
 
