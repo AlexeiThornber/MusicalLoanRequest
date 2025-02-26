@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebas
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { displayedDates, convertDateToString } from "./drawCalendar.js";
 
-//Dupliocate code, a bit annoying but okay...
+//Duplicate code, a bit annoying but okay...
 const firebaseConfig = {
     apiKey: "AIzaSyDqdd0AYy50IRT-MFPCzmwR0ZHHJYrl9Z8",
     authDomain: "musicalloanrequests.firebaseapp.com",
@@ -12,15 +12,6 @@ const firebaseConfig = {
     messagingSenderId: "713902726859",
     appId: "1:713902726859:web:25cde11bb242148cfa054e"
 };
-
-const eventNumber = Object.freeze({
-    color : "rgb(0, 100, 0)",
-    color : "rgb(0, 120, 0)",
-    color : "rgb(0, 160, 0)",
-    color : "rgb(0, 200, 0)",
-    color : "rgb(0, 240, 0)",
-    color : "rgb(0, 250, 0)",
-})
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -66,28 +57,40 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 export function drawEvents(){
 
-    //Filter the events that are not displayed
+    //Filter the events that are not displayed (the ones that are not on the current month)
     displayedEvents = listLoadedEvents.filter((event) => isEventContainedOnPage(event));
-    displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate - event2.startDate);
+
+    //sort the events by ascending order 
+    displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate.getTime() - event2.startDate.getTime());
 
 
+    //CollisionEventsArray is an array contaning array of events of the sort [[event1, event2], [event3]]
+    //If two events intersect (such as event1 and event2) they will be placed in the same array.
     let collisionEventsArray = [];
     let collisionEvents = [displayedEvents[0]];
-    createCollisionArray(displayedEvents, 0, 1, collisionEvents, (arg) => {
-        collisionEventsArray.push(arg);
-    })
 
-    collisionEventsArray.forEach((collisionEvents) => {
-        const dates = findLargestDates(collisionEvents); //this is a tuple
-        iterateDates(dates[0], dates[1], (date) => {
-            const day = date.getDate();
-            const month = date.getMonth() + 1;
-            const year = date.getFullYear();
-            const divId = document.getElementById(day + "_" + month + "_" + year);
-            customiseDiv(divId, date, collisionEvents);
+    console.log(collisionEventsArray);
+
+    //We only proceed with the creation of the collisionEventsArray with when there are events displayed
+    if(displayedEvents.length !== 0){
+
+        createCollisionArray(displayedEvents, 0, 1, collisionEvents, (arg) => {
+            collisionEventsArray.push(arg);
         })
 
-    }) 
+        collisionEventsArray.forEach((collisionEvents) => {
+            const dates = findLargestDates(collisionEvents); //this is a tuple
+
+            iterateDates(dates[0], dates[1], (date) => {
+                const day = date.getDate();
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear();
+                const divId = document.getElementById(day + "_" + month + "_" + year);
+                customiseDiv(divId, date, collisionEvents);
+            })
+
+        }) 
+    }
 }
 
 function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, callback){
@@ -107,7 +110,7 @@ function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, call
 
 
 function iterateDates(startDate, endDate, callback) {
-    let currentDate = new Date(startDate);
+    let currentDate = convertDateNoHours(new Date(startDate));
 
     while (currentDate.getTime() <= endDate.getTime()) {
         callback(new Date(currentDate));
@@ -119,12 +122,13 @@ function iterateDates(startDate, endDate, callback) {
  * Customises the calendar date div with the number of events contained in the date 
  * @param {*} divId The id of the modified calendar div (id = dd/mm/yyyy)
  * @param {*} currentDate The current date of the modified calendar
+ * @param {*} events The events that are in collsision date wise
  */
 function customiseDiv(divId, currentDate, events){
     if (divId) {
         const childDiv = divId.querySelector(".date_content");
         if(childDiv){
-            events.forEach((event) => {
+            events.forEach((event, index) => {
                 const eventDiv = document.createElement("div");
 
                 eventDiv.setAttribute("id", event.uid);
@@ -134,10 +138,11 @@ function customiseDiv(divId, currentDate, events){
 
                 eventTitle.textContent = event.title;
 
-                if(currentDate.getTime() < event.startDate.getTime()
-                    || currentDate.getTime() > event.endDate.getTime() ){
+                if(currentDate.getTime() < convertDateNoHours(event.startDate).getTime()
+                    || currentDate.getTime() > convertDateNoHours(event.endDate).getTime() ){
                     eventDiv.style.visibility = 'hidden';
                 }
+
                 if (convertDateToString(currentDate) !== convertDateToString(event.endDate) &&
                     !divId.className.includes("Sun")) {
                     eventDiv.style.width = "110%";
@@ -145,6 +150,12 @@ function customiseDiv(divId, currentDate, events){
 
                 eventDiv.addEventListener('click', () => {
                     window.location.href = `createEvent.html?id=${event.uid}`
+                })
+
+                const collisionEventsUids = checkItemCollision(event, index, events);
+
+                collisionEventsUids.forEach((cEvent) => {
+
                 })
                 
                 eventDiv.append(eventTitle);
@@ -157,7 +168,6 @@ function customiseDiv(divId, currentDate, events){
 }
 
 //Helper funtions to filter events
-//TODO -> change this back to string 
 function isEventContainedOnPage(event) {
     return displayedDates.has(convertDateToString(event.startDate)) 
     || displayedDates.has(convertDateToString(event.endDate));
@@ -170,30 +180,42 @@ function isEventContainedOnPage(event) {
  * If the startDate of the eventToCheck is in the  
  */
 function isEventContainedInAnother(eventComparedTo, eventToCheck){
-    return (eventComparedTo.startDate <= eventToCheck.startDate)
-    && (eventComparedTo.endDate >= eventToCheck.startDate);
+    return (eventComparedTo.startDate.getTime() <= eventToCheck.startDate.getTime())
+    && (eventComparedTo.endDate.getTime() >= eventToCheck.startDate.getTime());
 }
 
-/**
- * The objective is to find the largest dates between two events
- * (start and end)
- * 
- * @param {*} event1 The "parent" event that sets the benchmark (its startDate will always be smaller than event2)
- * @param {*} event2 The event to check
- */
-function findLargestDates(collisionDates){
-    if(collisionDates == null ){
-        return;
-    }
-    let dateS = collisionDates[0].startDate;
-    let dateE = collisionDates[0].endDate;
-    collisionDates.forEach((date) =>{
-        if( date.startDate.getTime() < dateS.getTime()){
-            dateS = date.startDate; 
+
+function findLargestDates(collisionEvents){
+    let dateS = collisionEvents[0].startDate;
+    let dateE = collisionEvents[0].endDate;
+    collisionEvents.forEach((event) =>{
+
+        if( event.startDate.getTime() < dateS.getTime()){
+            dateS = event.startDate; 
         }
-        if(date.endDate.getTime() > dateE.getTime()){
-            dateE = date.endDate;
+        if(event.endDate.getTime() > dateE.getTime()){
+            dateE = event.endDate;
         }
     })
-    return [dateS, dateE];
+    return [convertDateNoHours(dateS), convertDateNoHours(dateE)];
+}
+
+function checkItemCollision(event, idx, events){
+    const itemCollisionUid = new Set();
+    for(let i = idx + 1; i < events.length; i ++){
+        if (new Set(events[i].items.keys()).has(event.items.keys())) {
+            if(events[i].startDate.getTime() > event.endDate.getTime()){
+                itemCollisionUid.add(event);
+                itemCollisionUid.add(events[i]);
+            }
+        }
+    }
+    return itemCollisionUid;
+}
+
+
+//Helper function to convert Dates and no take into account the hours
+function convertDateNoHours(date){
+    const newDate = new Date(date.getTime());
+    return new Date(newDate.setHours(0,0,0,0));
 }
