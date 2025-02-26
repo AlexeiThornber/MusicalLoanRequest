@@ -35,14 +35,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     eventData.then(event => showLoadedEvent(event));
 
   }
+  addEditButton();
 })
 
-
-document.getElementById("create-event").addEventListener('click', async () =>{
-    event.preventDefault();
+function addEditButton(){
+  document.getElementById("create-event").addEventListener('click', async () =>{
 
     const title = document.getElementById("eventTitle").value;    
-    const beneficiary = document.getElementById("beneficiary").value;      // console.log("caca");      
+    const beneficiary = document.getElementById("beneficiary").value;    
     const startDate = document.getElementById("eventDateStart").value;
     const startTime = document.getElementById("eventTimeStart").value;    
     const endDate = document.getElementById("eventDateEnd").value;
@@ -81,7 +81,7 @@ document.getElementById("create-event").addEventListener('click', async () =>{
     }
 
 })
-
+}
 
 //Helper funtion
 function isStringNull(str){
@@ -103,13 +103,14 @@ async function loadEventToEdit(eventId){
 }
 
 function showLoadedEvent(event){
-  console.log(event);
+  // console.log(event);
   document.getElementById("eventTitle").value = event.title;
   document.getElementById("beneficiary").value = event.beneficiary;
   document.getElementById("eventDescription").value = event.description;
 
   // Sanitize the list of items received as JSON into a map
   mapSelectedItems.clear();
+
   event.items.forEach(item => {
     mapSelectedItems.set(item.key, item.value);
 
@@ -138,9 +139,9 @@ function showLoadedEvent(event){
   const startDate = event.start.toDate();
   const endDate = event.end.toDate();
 
-  document.getElementById("eventDateStart").value = startDate.toISOString().split('T')[0];
+  document.getElementById("eventDateStart").value = startDate.toLocaleDateString('en-CA');
   document.getElementById("eventTimeStart").value = startDate.toTimeString().split(' ')[0].substring(0, 5);
-  document.getElementById("eventDateEnd").value = endDate.toISOString().split('T')[0];
+  document.getElementById("eventDateEnd").value = endDate.toLocaleDateString('en-CA');
   document.getElementById("eventTimeEnd").value = endDate.toTimeString().split(' ')[0].substring(0, 5);
 
 }
