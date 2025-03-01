@@ -67,45 +67,67 @@ export function drawEvents(){
 
     //CollisionEventsArray is an array contaning array of events of the sort [[event1, event2], [event3]]
     //If two events intersect (such as event1 and event2) they will be placed in the same array.
-    let collisionEventsArray = [];
-    let collisionEvents = [displayedEvents[0]];
+    let mainArray = [];
+    let collisionArray = [displayedEvents[0]];
+    let clusterArray = [];
 
-    console.log(collisionEventsArray);
+    console.log(mainArray);
 
     //We only proceed with the creation of the collisionEventsArray with when there are events displayed
     if(displayedEvents.length !== 0){
 
-        createCollisionArray(displayedEvents, 0, 1, collisionEvents, (arg) => {
-            collisionEventsArray.push(arg);
+        createCollisionArray(displayedEvents, 0, 1, collisionArray, clusterArray, (clusterArray) => {
+            mainArray.push(clusterArray);
         })
 
-        collisionEventsArray.forEach((collisionEvents) => {
-            const dates = findLargestDates(collisionEvents); //this is a tuple
 
-            iterateDates(dates[0], dates[1], (date) => {
-                const day = date.getDate();
-                const month = date.getMonth() + 1;
-                const year = date.getFullYear();
-                const divId = document.getElementById(day + "_" + month + "_" + year);
-                customiseDiv(divId, date, collisionEvents);
-            })
+        // const drawnEvents = new Set();
 
-        }) 
+        // mainArray.forEach((collisionEvents) => {
+        //     const dates = findLargestDates(collisionEvents); //this is a tuple
+
+        //     iterateDates(dates[0], dates[1], (date) => {
+        //         customiseDiv(date, collisionEvents, drawnEvents);
+        //     })
+
+        // }) 
     }
 }
 
-function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, callback){
-    if(!(idx2 < displayedEvents.length)){
-        callback(collisionEvents);
+function createCollisionArray(displayedEvents ,idx1, idx2, collisionArray, clusterArray, addClusterToMain){
+    //Check that i didn't fuck up the indices (should never be called)
+    if(idx1 >= idx2){
+        console.log("indexes are fucked up");
         return;
-    }
-    if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
-        collisionEvents.push(displayedEvents[idx2]);
-        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+    } 
+    
+    //If we are in this case, that means that all the remaining events are contained in the 
+    //event at idx1, thefore the algorithm terminates and we can return.
+    if(!(idx2 < displayedEvents.length)){
+        clusterArray.push(collisionArray);
+        addClusterToMain(clusterArray);
+        return;
+
+    //This means that we are at the end of the cluster because 
+    //It is not the end of the displayed events list but we have found a singleton meaning there are no more conflicts
+    }else if(!isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2]) && collisionArray.length === 1){
+        clusterArray.push(collisionArray);
+        addClusterToMain(clusterArray);
+        idx1 = idx1 + 1;
+        idx2 = idx1 + 1;
+        collisionArray = [displayedEvents[idx1]];
+        clusterArray = [];
+        createCollisionArray(displayedEvents, idx1, idx2, collisionArray, clusterArray, addClusterToMain);
+
+    }else if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
+        collisionArray.push(displayedEvents[idx2]);
+        createCollisionArray(displayedEvents, idx1, idx2 + 1, collisionArray, clusterArray, addClusterToMain);
     }else{
-        callback(collisionEvents);
-        collisionEvents = [displayedEvents[idx2]];
-        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+        clusterArray.push(collisionArray);
+        idx1 = idx1 + 1;
+        idx2 = idx1 + 1;
+        collisionArray = [displayedEvents[idx1]];
+        createCollisionArray(displayedEvents, idx1, idx2, collisionArray, clusterArray, addClusterToMain);
     }
 }
 
@@ -121,46 +143,61 @@ function iterateDates(startDate, endDate, callback) {
 
 /**
  * Customises the calendar date div with the number of events contained in the date 
- * @param {*} divId The id of the modified calendar div (id = dd/mm/yyyy)
  * @param {*} currentDate The current date of the modified calendar
  * @param {*} events The events that are in collsision date wise
  */
-function customiseDiv(divId, currentDate, events){
+function customiseDiv(currentDate, events, drawnEvents){
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    const divId = document.getElementById(day + "_" + month + "_" + year);
     if (divId) {
         const childDiv = divId.querySelector(".date_content");
         if(childDiv){
             events.forEach((event, index) => {
-                const eventDiv = document.createElement("div");
+                //The event has already been drawn and we thefore do nothing
+                if(!drawnEvents.has(event.uid)){
+                    const eventDiv = document.createElement("div");
 
-                eventDiv.setAttribute("id", event.uid);
-                eventDiv.setAttribute("class", "events");
+                    eventDiv.setAttribute("id", event.uid);
+                    eventDiv.setAttribute("class", "events");
 
-                const eventTitle = document.createElement("p");
+                    const eventTitle = document.createElement("p");
+                    eventTitle.textContent = event.title;
 
-                eventTitle.textContent = event.title;
 
-                if(currentDate.getTime() < convertDateNoHours(event.startDate).getTime()
-                    || currentDate.getTime() > convertDateNoHours(event.endDate).getTime() ){
-                    eventDiv.style.visibility = 'hidden';
                 }
+                // const eventDiv = document.createElement("div");
 
-                if (convertDateToString(currentDate) !== convertDateToString(event.endDate) &&
-                    !divId.className.includes("Sun")) {
-                    eventDiv.style.width = "110%";
-                }
+                // eventDiv.setAttribute("id", event.uid);
+                // eventDiv.setAttribute("class", "events");
 
-                eventDiv.addEventListener('click', () => {
-                    window.location.href = `createEvent.html?id=${event.uid}`
-                })
+                // const eventTitle = document.createElement("p");
 
-                for(let i = index + 1; i < events.length; i++){
-                    if(checkItemCollision(event, events[i]) && event.endDate.getTime() > events[i].startDate.getTime()){
-                        eventDiv.style.backgroundColor = "red";
-                    }
-                }
+                // eventTitle.textContent = event.title;
 
-                eventDiv.append(eventTitle);
-                childDiv.append(eventDiv);
+                // if(currentDate.getTime() < convertDateNoHours(event.startDate).getTime()
+                //     || currentDate.getTime() > convertDateNoHours(event.endDate).getTime() ){
+                //     eventDiv.style.visibility = 'hidden';
+                // }
+
+                // if (convertDateToString(currentDate) !== convertDateToString(event.endDate) &&
+                //     !divId.className.includes("Sun")) {
+                //     eventDiv.style.width = "110%";
+                // }
+
+                // eventDiv.addEventListener('click', () => {
+                //     window.location.href = `createEvent.html?id=${event.uid}`
+                // })
+
+                // for(let i = index + 1; i < events.length; i++){
+                //     if(checkItemCollision(event, events[i]) && event.endDate.getTime() > events[i].startDate.getTime()){
+                //         eventDiv.style.backgroundColor = "red";
+                //     }
+                // }
+
+                // eventDiv.append(eventTitle);
+                // childDiv.append(eventDiv);
                 
             })
         }
