@@ -122,7 +122,6 @@ function iterateDates(startDate, endDate, callback) {
 
 /**
  * Customises the calendar date div with the number of events contained in the date 
- * @param {*} divId The id of the modified calendar div (id = dd/mm/yyyy)
  * @param {*} currentDate The current date of the modified calendar
  * @param {*} events The events that are in collsision date wise
  */
