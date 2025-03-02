@@ -1,4 +1,4 @@
-import { keyToValueConverter, Sonorisation, Micros, Cables } from '../itemList.js';
+import { keyToValueConverter, Items } from '../itemList.js';
 
 //prevent from the buttons to behave like a form
 document.getElementById('createEventForm').addEventListener('submit', function(event) {
@@ -22,23 +22,16 @@ radioButtons.forEach(radioButton => {
         selectedCategory = document.querySelector("input[name='category']:checked");
         switch(selectedCategory.value){
             case "Sound & Instruments":
-                addHTMLOptions(Sonorisation);
-                addHTMLQuantity(Sonorisation.FACADE_SCENE)
+                addHTMLOptions(Items.Sonorisation);
+                addHTMLQuantity(Items.Sonorisation.FACADE_SCENE)
                 break;
             case "Microphones":
-                addHTMLOptions(Micros); const urlParams = Array.from(new URLSearchParams(window.location.search).entries());
-
-                if(urlParams.length != 0){
-                  modifyToEditEvent();
-                  const eventData = loadEventToEdit(urlParams[0][1]);
-                  eventData.then(event => showLoadedEvent(event));
-              
-                }
-                addHTMLQuantity(Micros.PIED_MICRO)
+                addHTMLOptions(Items.Micros);
+                addHTMLQuantity(Items.Micros.PIED_MICRO)
                 break;
             case "Cables":
-                addHTMLOptions(Cables);
-                addHTMLQuantity(Cables.XLR)
+                addHTMLOptions(Items.Cables);
+                addHTMLQuantity(Items.Cables.XLR)
                 break;
         }
     } );
@@ -58,7 +51,7 @@ export function addHTMLOptions(category) {
 }
 
 //Default value
-addHTMLOptions(Sonorisation);
+addHTMLOptions(Items.Sonorisation);
 
 /**
  * The following code handles the item picker in the drop down menu
@@ -70,24 +63,24 @@ selection.addEventListener('change', () => {
     let selectedItem = selection.options[selection.selectedIndex].value;
     switch(selectedCategory.value){
         case "Sound & Instruments":
-            for (let key in Sonorisation) {
-                const item = Sonorisation[key];
+            for (let key in Items.Sonorisation) {
+                const item = Items.Sonorisation[key];
                 if (key == selectedItem) {
                     addHTMLQuantity(item);
                 }
             }
             break;
         case "Microphones":
-            for (let key in Micros) {
-                const item = Micros[key];
+            for (let key in Items.Micros) {
+                const item = Items.Micros[key];
                 if (key == selectedItem) {
                     addHTMLQuantity(item);
                 }
             }
             break;
         case "Cables":
-            for (let key in Cables) {
-                const item = Cables[key];
+            for (let key in Items.Cables) {
+                const item = Items.Cables[key];
                 if (key == selectedItem) {
                     addHTMLQuantity(item);
                 }
@@ -103,7 +96,7 @@ export function addHTMLQuantity(item) {
 }
 
 //Default value
-addHTMLQuantity(Sonorisation.FACADE_SCENE)
+addHTMLQuantity(Items.Sonorisation.FACADE_SCENE)
 
 window.addHTMLOptions = addHTMLOptions;
 

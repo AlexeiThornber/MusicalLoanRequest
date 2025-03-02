@@ -153,11 +153,11 @@ function customiseDiv(divId, currentDate, events){
                     window.location.href = `createEvent.html?id=${event.uid}`
                 })
 
-                for(let i = index + 1; i < events.length; i++){
-                    if(checkItemCollision(event, events[i]) && event.endDate.getTime() > events[i].startDate.getTime()){
-                        eventDiv.style.backgroundColor = "red";
-                    }
-                }
+                // for(let i = index + 1; i < events.length; i++){
+                //     if(checkItemCollision(event, events[i]) && event.endDate.getTime() > events[i].startDate.getTime()){
+                //         eventDiv.style.backgroundColor = "red";
+                //     }
+                // }
 
                 eventDiv.append(eventTitle);
                 childDiv.append(eventDiv);
@@ -201,21 +201,21 @@ function findLargestDates(collisionEvents){
     return [convertDateNoHours(dateS), convertDateNoHours(dateE)];
 }
 
-function checkItemCollision(event1, event2){
-    const set1 = new Set(event1.items.keys());
-    const set2 = new Set(event2.items.keys());
+// function checkItemCollision(event1, event2){
+//     const set1 = new Set(event1.items.keys());
+//     const set2 = new Set(event2.items.keys());
 
-    for (let item of set1) {
-        if (set2.has(item)) {
-            let maxQuantity = getItem(item).quantity;
-            let actualQuantity = parseInt(event1.items.get(item)) + parseInt(event2.items.get(item));
-            if(actualQuantity > maxQuantity){
-                return true;
-            }
-        }
-    }
-    return false;
-}
+//     for (let item of set1) {
+//         if (set2.has(item)) {
+//             let maxQuantity = getItem(item).quantity;
+//             let actualQuantity = parseInt(event1.items.get(item)) + parseInt(event2.items.get(item));
+//             if(actualQuantity > maxQuantity){
+//                 return true;
+//             }
+//         }
+//     }
+//     return false;
+// }
 
 
 //Helper function to convert Dates and no take into account the hours

@@ -2,7 +2,7 @@ import { mapSelectedItems, saveSelection } from "./HTMLHandler.js";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, getDoc, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { keyToValueConverter } from '../itemList.js';
+import { getItem } from '../itemList.js';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -103,7 +103,7 @@ async function loadEventToEdit(eventId){
 }
 
 function showLoadedEvent(event){
-  // console.log(event);
+  console.log(event);
   document.getElementById("eventTitle").value = event.title;
   document.getElementById("beneficiary").value = event.beneficiary;
   document.getElementById("eventDescription").value = event.description;
@@ -114,14 +114,7 @@ function showLoadedEvent(event){
   event.items.forEach(item => {
     mapSelectedItems.set(item.key, item.value);
 
-    let convertedSelectedItem;
-
-    itemCategories.forEach((cat) => {
-      const convertedItem = keyToValueConverter(item.key, cat);
-      if (convertedItem !== undefined) {
-        convertedSelectedItem = convertedItem;
-      }
-    })
+    let convertedSelectedItem = getItem(item.key);
 
     let list = document.getElementById("item-list");
 

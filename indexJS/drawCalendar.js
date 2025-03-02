@@ -5,8 +5,9 @@ const datesElem = document.getElementById('dates');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 
+let itemsPerDate = new Map();
 
-let currentDate = new Date(); //this behaves like a global variable
+let currentDate = new Date();
 
 export const displayedDates = new Set();
 
