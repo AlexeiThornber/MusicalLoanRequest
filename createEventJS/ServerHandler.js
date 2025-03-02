@@ -52,14 +52,17 @@ function addEditButton(){
       eventUID = window.crypto.randomUUID();
     }
 
+    let start = new Date(startDate + "T" + startTime + ":00");
+    let end = new Date(endDate + "T" + endTime + ":00"); 
+
+  
     if(isStringNull(title) || isStringNull(beneficiary) || 
     isStringNull(startDate) || isStringNull(startTime) || 
     isStringNull(endDate) || isStringNull(endTime) || mapSelectedItems.size === 0){
-        alert("You haven't filled out all the necessary fields");
+      alert("You haven't filled out all the necessary fields");
+    }else if(start.getTime() > end.getTime()){
+      alert("The event can't end before it starts :)")
     }else{
-        let start = new Date(startDate + "T" + startTime + ":00");
-        let end = new Date(endDate + "T" + endTime + ":00"); 
-
         try {
             const docRef = doc(collection(db, "events"), eventUID);
             await setDoc(docRef, {
