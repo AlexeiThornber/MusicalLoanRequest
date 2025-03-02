@@ -1,3 +1,4 @@
+import { Items } from "../itemList.js";
 import { drawEvents } from "./eventHandler.js";
 
 const monthYearElem = document.getElementById('monthYear');
@@ -5,7 +6,7 @@ const datesElem = document.getElementById('dates');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 
-let itemsPerDate = new Map();
+export let itemsPerDate = new Map();
 
 let currentDate = new Date();
 
@@ -31,26 +32,38 @@ const updateCalendar = () => {
 
     for (let i = firstDayIndex; i > 0; i--) {
         const prevDate = new Date(currentYear, currentMonth, 0 - i);
-        datesHTML += `<div class = "date date_inactive" id = "${prevDate.getDate() + 1}_${prevDate.getMonth() + 1}_${prevDate.getFullYear()}">
+        const stringDate = `${prevDate.getDate() + 1}_${prevDate.getMonth() + 1}_${prevDate.getFullYear()}`;
+
+        datesHTML += `<div class = "date date_inactive" id = "${stringDate}">
         <div class = "date_num">${prevDate.getDate() + 1}</div><div class = "date_content"></div></div>`;  
+
         prevDate.setDate(prevDate.getDate() + 1);
-        displayedDates.add( convertDateToString(prevDate));
+        displayedDates.add(convertDateToString(prevDate));
+        itemsPerDate.set(stringDate, Items);
     }
 
     for (let i = 1; i <= totalDays; i++){
         const date = new Date(currentYear, currentMonth, i);
         const activeClass = date.toDateString() === new Date().toDateString() ? 'active' : '';
         const isSunday = date.getDay() === 0 ? "Sun" : "";
-        datesHTML += `<div class = "date date_${activeClass} ${isSunday}" id = "${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}">
+        const stringDate = `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
+
+        datesHTML += `<div class = "date date_${activeClass} ${isSunday}" id = "${stringDate}">
         <div class = "date_num">${i}</div><div class = "date_content"></div></div>`
+
+        itemsPerDate.set(stringDate, Items);
         displayedDates.add(convertDateToString(date));
     }
 
     for(let i = 1; i <= 7 - lastDayIndex; i++){
         const nextDate = new Date(currentYear, currentMonth + 1, i);
         const isSunday = nextDate.getDay() === 0 ? "Sun" : "";
-        datesHTML += `<div class = "date date_inactive ${isSunday}" id = "${nextDate.getDate()}_${nextDate.getMonth() + 1}_${nextDate.getFullYear()}">
+        const stringDate = `${nextDate.getDate()}_${nextDate.getMonth() + 1}_${nextDate.getFullYear()}`;
+
+        datesHTML += `<div class = "date date_inactive ${isSunday}" id = "${stringDate}">
         <div class = "date_num">${nextDate.getDate()}</div><div class = "date_content"></div></div>`;
+
+        itemsPerDate.set(stringDate, Items);
         displayedDates.add(convertDateToString(nextDate));
     }
     datesElem.innerHTML = datesHTML;

@@ -1,8 +1,8 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { displayedDates, convertDateToString } from "./drawCalendar.js";
-import { getItem } from "../itemList.js";
+import { displayedDates, convertDateToString, itemsPerDate } from "./drawCalendar.js";
+import { getItem, keyToCategoryConverter } from "../itemList.js";
 
 //Duplicate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -57,7 +57,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 export function drawEvents(){
-
     //Filter the events that are not displayed (the ones that are not on the current month)
     displayedEvents = listLoadedEvents.filter((event) => isEventContainedOnPage(event));
 
@@ -70,8 +69,6 @@ export function drawEvents(){
     let collisionEventsArray = [];
     let collisionEvents = [displayedEvents[0]];
 
-    console.log(collisionEventsArray);
-
     //We only proceed with the creation of the collisionEventsArray with when there are events displayed
     if(displayedEvents.length !== 0){
 
@@ -81,13 +78,17 @@ export function drawEvents(){
 
         collisionEventsArray.forEach((collisionEvents) => {
             const dates = findLargestDates(collisionEvents); //this is a tuple
+            let itemCollisionEvents = new Set();
 
             iterateDates(dates[0], dates[1], (date) => {
-                const day = date.getDate();
-                const month = date.getMonth() + 1;
-                const year = date.getFullYear();
-                const divId = document.getElementById(day + "_" + month + "_" + year);
-                customiseDiv(divId, date, collisionEvents);
+                customiseDiv(date, collisionEvents, itemCollisionEvents);
+            })
+
+            itemCollisionEvents.forEach((uid) => {
+                const eventsToEdit = document.querySelectorAll(`[id='${uid}']`);
+                eventsToEdit.forEach((eventToEdit) => {
+                    eventToEdit.style.backgroundColor += "red";
+                })
             })
 
         }) 
@@ -125,11 +126,17 @@ function iterateDates(startDate, endDate, callback) {
  * @param {*} currentDate The current date of the modified calendar
  * @param {*} events The events that are in collsision date wise
  */
-function customiseDiv(divId, currentDate, events){
+function customiseDiv(currentDate, events, itemCollisionEvents){
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    const dateString = day + "_" + month + "_" + year;
+    const divId = document.getElementById(dateString);
+
     if (divId) {
         const childDiv = divId.querySelector(".date_content");
         if(childDiv){
-            events.forEach((event, index) => {
+            events.forEach((event) => {
                 const eventDiv = document.createElement("div");
 
                 eventDiv.setAttribute("id", event.uid);
@@ -142,9 +149,16 @@ function customiseDiv(divId, currentDate, events){
                 if(currentDate.getTime() < convertDateNoHours(event.startDate).getTime()
                     || currentDate.getTime() > convertDateNoHours(event.endDate).getTime() ){
                     eventDiv.style.visibility = 'hidden';
+                }else{
+                    removeItemsFromDate(event.items, dateString);
+                    if(checkItemsPerDate(dateString)){
+                        // eventDiv.style.backgroundColor = "red";
+                        itemCollisionEvents.add(event.uid);
+                    }
                 }
 
-                if (convertDateToString(currentDate) !== convertDateToString(event.endDate) &&
+                //Check that it is not the last day of the event
+                if (currentDate.getTime() !== convertDateNoHours(event.endDate).getTime() &&
                     !divId.className.includes("Sun")) {
                     eventDiv.style.width = "110%";
                 }
@@ -153,12 +167,6 @@ function customiseDiv(divId, currentDate, events){
                     window.location.href = `createEvent.html?id=${event.uid}`
                 })
 
-                // for(let i = index + 1; i < events.length; i++){
-                //     if(checkItemCollision(event, events[i]) && event.endDate.getTime() > events[i].startDate.getTime()){
-                //         eventDiv.style.backgroundColor = "red";
-                //     }
-                // }
-
                 eventDiv.append(eventTitle);
                 childDiv.append(eventDiv);
                 
@@ -166,6 +174,28 @@ function customiseDiv(divId, currentDate, events){
         }
         childDiv.style.zIndex = "10";
     }
+}
+
+function removeItemsFromDate(items, dateString){
+    const currentItems = JSON.parse(JSON.stringify(itemsPerDate.get(dateString)));
+    items.forEach((value, key) => {
+        let parent = keyToCategoryConverter(key);
+        currentItems[parent][key].quantity = 
+        currentItems[parent][key].quantity - value;
+    });
+    itemsPerDate.set(dateString, currentItems);
+}
+
+function checkItemsPerDate(dateString){
+    const currentItems = itemsPerDate.get(dateString);
+    for(const [category, item] of Object.entries(currentItems)){
+        for(const [itemName, itemValue] of Object.entries(item)){
+            if(itemValue.quantity < 0){
+                return true
+            }
+        }
+    }
+    return false;
 }
 
 //Helper funtions to filter events
@@ -185,7 +215,6 @@ function isEventContainedInAnother(eventComparedTo, eventToCheck){
     && (convertDateNoHours(eventComparedTo.endDate).getTime() >= convertDateNoHours(eventToCheck.startDate).getTime());
 }
 
-
 function findLargestDates(collisionEvents){
     let dateS = collisionEvents[0].startDate;
     let dateE = collisionEvents[0].endDate;
@@ -200,23 +229,6 @@ function findLargestDates(collisionEvents){
     })
     return [convertDateNoHours(dateS), convertDateNoHours(dateE)];
 }
-
-// function checkItemCollision(event1, event2){
-//     const set1 = new Set(event1.items.keys());
-//     const set2 = new Set(event2.items.keys());
-
-//     for (let item of set1) {
-//         if (set2.has(item)) {
-//             let maxQuantity = getItem(item).quantity;
-//             let actualQuantity = parseInt(event1.items.get(item)) + parseInt(event2.items.get(item));
-//             if(actualQuantity > maxQuantity){
-//                 return true;
-//             }
-//         }
-//     }
-//     return false;
-// }
-
 
 //Helper function to convert Dates and no take into account the hours
 function convertDateNoHours(date){
