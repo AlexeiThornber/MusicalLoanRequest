@@ -103,7 +103,7 @@ export function drawEvents(){
 
                 })
 
-                // customiseDiv(date, collisionEvents, itemCollisionEvents);
+                customiseDiv(date, collisionEvents, itemCollisionEvents);
             })
 
             itemCollisionEvents.forEach((uid) => {
