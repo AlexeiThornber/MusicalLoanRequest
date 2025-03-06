@@ -78,10 +78,32 @@ export function drawEvents(){
 
         collisionEventsArray.forEach((collisionEvents) => {
             const dates = findLargestDates(collisionEvents); //this is a tuple
-            let itemCollisionEvents = new Set();
+            const itemCollisionEvents = new Set();
+            const eventRowIndex = new Map();
+            let indexOfRefEvent = 0;
 
             iterateDates(dates[0], dates[1], (date) => {
-                customiseDiv(date, collisionEvents, itemCollisionEvents);
+                const eventsOnDate = [];
+                for(let i = indexOfRefEvent; i < collisionEvents.length; i++){
+                    if(isEventOnDate(collisionEvents[i], date)){
+                        eventsOnDate.push(collisionEvents[i]);
+                    }
+                }
+
+                let drawnDivs = 0;
+                eventsOnDate.size
+                eventsOnDate.forEach((event) => {
+                    let row = eventRowIndex.get(event.uid)
+
+                    if(row === drawnDivs){
+                        //draw the event here
+                        //as we are at the row where the event must be drawn
+                        drawnDivs++;
+                    }
+
+                })
+
+                // customiseDiv(date, collisionEvents, itemCollisionEvents);
             })
 
             itemCollisionEvents.forEach((uid) => {
@@ -108,6 +130,11 @@ function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, call
         collisionEvents = [displayedEvents[idx2]];
         createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
     }
+}
+
+function isEventOnDate(event, date){
+    return convertDateNoHours(event.startDate).getTime() <= date.getTime()
+        && date.getTime() <= convertDateNoHours(event.endDate).getTime()
 }
 
 
@@ -173,6 +200,10 @@ function customiseDiv(currentDate, events, itemCollisionEvents){
         }
         childDiv.style.zIndex = "10";
     }
+}
+
+function drawEventDiv(){
+
 }
 
 function removeItemsFromDate(items, dateString){

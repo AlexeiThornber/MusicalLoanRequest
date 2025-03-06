@@ -29,6 +29,7 @@ section{
     max-width: 1200px;
     width: 100%;
     padding: 25px;
+    margin: 50px;
     border-radius: 20px;
     background-color: aliceblue;
     box-shadow: 0 0 15px rgba(0, 0 ,0, 0.1);
