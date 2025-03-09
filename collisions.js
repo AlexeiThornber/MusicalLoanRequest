@@ -86,6 +86,8 @@ const computeTimeline = (events) => {
     }
   });
 
+  console.log("events with ranges :"  + eventsWithRanges);
+
   // Max collision count
   const timelineStart = Math.min(...eventsWithRanges.map(event => event.start));
   const timelineEnd = Math.max(...eventsWithRanges.map(event => event.end));

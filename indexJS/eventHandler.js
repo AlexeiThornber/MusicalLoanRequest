@@ -3,6 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebas
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { displayedDates, convertDateToString, itemsPerDate } from "./drawCalendar.js";
 import { getItem, keyToCategoryConverter } from "../itemList.js";
+import { UnionFind } from "../unionFind.js";
 
 //Duplicate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -66,71 +67,107 @@ export function drawEvents(){
 
     //CollisionEventsArray is an array contaning array of events of the sort [[event1, event2], [event3]]
     //If two events intersect (such as event1 and event2) they will be placed in the same array.
-    let collisionEventsArray = [];
-    let collisionEvents = [displayedEvents[0]];
+    let mainArray = [];
+    let collisionArray = [displayedEvents[0]];
+    let clusterArray = [];
 
     //We only proceed with the creation of the collisionEventsArray with when there are events displayed
     if(displayedEvents.length !== 0){
 
-        createCollisionArray(displayedEvents, 0, 1, collisionEvents, (arg) => {
-            collisionEventsArray.push(arg);
+        createCollisionArray(displayedEvents, 0, 1, collisionArray, clusterArray, (clusterArray) => {
+            mainArray.push(clusterArray);
         })
 
-        collisionEventsArray.forEach((collisionEvents) => {
-            const dates = findLargestDates(collisionEvents); //this is a tuple
-            const itemCollisionEvents = new Set();
-            const eventRowIndex = new Map();
-            let indexOfRefEvent = 0;
+        mainArray = linkSubarrays(mainArray.flat());
 
-            iterateDates(dates[0], dates[1], (date) => {
-                const eventsOnDate = [];
-                for(let i = indexOfRefEvent; i < collisionEvents.length; i++){
-                    if(isEventOnDate(collisionEvents[i], date)){
-                        eventsOnDate.push(collisionEvents[i]);
-                    }
-                }
+        console.log(mainArray);
 
-                let drawnDivs = 0;
-                eventsOnDate.size
-                eventsOnDate.forEach((event) => {
-                    let row = eventRowIndex.get(event.uid)
+        mainArray.forEach((clusterArray) => {
+            let timeLine = computeTimeLine(clusterArray);
+        })
 
-                    if(row === drawnDivs){
-                        //draw the event here
-                        //as we are at the row where the event must be drawn
-                        drawnDivs++;
-                    }
 
-                })
 
-                customiseDiv(date, collisionEvents, itemCollisionEvents);
-            })
+        // collisionEventsArray.forEach((collisionEvents) => {
+        //     const dates = findLargestDates(collisionEvents); //this is a tuple
+        //     const itemCollisionEvents = new Set();
 
-            itemCollisionEvents.forEach((uid) => {
-                const eventsToEdit = document.querySelectorAll(`[id='${uid}']`);
-                eventsToEdit.forEach((eventToEdit) => {
-                    eventToEdit.style.backgroundColor += "red";
-                })
-            })
+        //     iterateDates(dates[0], dates[1], (date) => {
 
-        }) 
+        //         customiseDiv(date, collisionEvents, itemCollisionEvents);
+        //     })
+
+        //     itemCollisionEvents.forEach((uid) => {
+        //         const eventsToEdit = document.querySelectorAll(`[id='${uid}']`);
+        //         eventsToEdit.forEach((eventToEdit) => {
+        //             eventToEdit.style.backgroundColor += "red";
+        //         })
+        //     })
+
+        // }) 
     }
 }
 
-function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, callback){
-    if(!(idx2 < displayedEvents.length)){
-        callback(collisionEvents);
+function createCollisionArray(displayedEvents ,idx1, idx2, collisionArray, clusterArray, addClusterToMain){
+    //Check that i didn't fuck up the indices (should never be called)
+    if(idx1 >= idx2){
+        console.log("indexes are fucked up");
         return;
-    }
-    if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
-        collisionEvents.push(displayedEvents[idx2]);
-        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+    } 
+    //If we are in this case, that means that all the remaining events are contained in the 
+    //event at idx1, thefore the algorithm terminates and we can return.
+    if(!(idx2 < displayedEvents.length)){
+        clusterArray.push(collisionArray);
+        addClusterToMain(clusterArray);
+        return;
+    //This means that we are at the end of the cluster because 
+    //It is not the end of the displayed events list but we have found a singleton meaning there are no more conflicts
+    }else if(!isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2]) && collisionArray.length === 1){
+        // clusterArray.push(collisionArray);
+        addClusterToMain(clusterArray);
+        idx1 = idx1 + 1;
+        idx2 = idx1 + 1;
+        collisionArray = [displayedEvents[idx1]];
+        clusterArray = [];
+        createCollisionArray(displayedEvents, idx1, idx2, collisionArray, clusterArray, addClusterToMain);
+    }else if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
+        collisionArray.push(displayedEvents[idx2]);
+        createCollisionArray(displayedEvents, idx1, idx2 + 1, collisionArray, clusterArray, addClusterToMain);
     }else{
-        callback(collisionEvents);
-        collisionEvents = [displayedEvents[idx2]];
-        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+        clusterArray.push(collisionArray);
+        idx1 = idx1 + 1;
+        idx2 = idx1 + 1;
+        collisionArray = [displayedEvents[idx1]];
+        createCollisionArray(displayedEvents, idx1, idx2, collisionArray, clusterArray, addClusterToMain);
     }
 }
+
+// function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, callback){
+//     if(!(idx2 < displayedEvents.length)){
+//         callback(collisionEvents);
+//         return;
+//     }
+//     // debugger;
+//     let i = 0;
+//     while(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2 + i])
+//          && idx2 + i < displayedEvents.length){
+//         collisionEvents.push(displayedEvents[idx2 + i]); 
+//         i++;
+//     }
+
+//     callback(collisionEvents);
+//     collisionEvents = [displayedEvents[idx2 + i]];
+//     createCollisionArray(displayedEvents, idx2 + i, idx2 + i + 1, collisionEvents, callback);
+
+//     // if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
+//     //     collisionEvents.push(displayedEvents[idx2]);
+//     //     createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+//     // }else{
+//     //     callback(collisionEvents);
+//     //     collisionEvents = [displayedEvents[idx2]];
+//     //     createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
+//     // }
+// }
 
 function isEventOnDate(event, date){
     return convertDateNoHours(event.startDate).getTime() <= date.getTime()
@@ -202,10 +239,6 @@ function customiseDiv(currentDate, events, itemCollisionEvents){
     }
 }
 
-function drawEventDiv(){
-
-}
-
 function removeItemsFromDate(items, dateString){
     const currentItems = JSON.parse(JSON.stringify(itemsPerDate.get(dateString)));
     items.forEach((value, key) => {
@@ -264,4 +297,60 @@ function findLargestDates(collisionEvents){
 function convertDateNoHours(date){
     const newDate = new Date(date.getTime());
     return new Date(newDate.setHours(0,0,0,0));
+}
+
+
+function linkSubarrays(arrays) {
+    const uf = new UnionFind();
+
+    // Union elements in the same subarray
+    for (const subarray of arrays) {
+        for (let i = 1; i < subarray.length; i++) {
+            uf.union(subarray[0], subarray[i]);
+        }
+    }
+
+    // Group elements by their root
+    const groups = new Map();
+    for (const subarray of arrays) {
+        for (const element of subarray) {
+            const root = uf.find(element);
+            if (!groups.has(root)) {
+                groups.set(root, new Set());
+            }
+            groups.get(root).add(element);
+        }
+    }
+
+    // Convert sets to arrays
+    const result = [];
+    for (const group of groups.values()) {
+        result.push(Array.from(group));
+    }
+
+    return result;
+}
+
+function computeTimeLine(events){
+
+    const eventWithRange = events.map(event => {
+        return {
+            event,
+            range: makeRange(
+                Math.floor(event.startDate.getTime() / (1000 * 60 * 60 * 24)),
+                Math.floor(event.endDate.getTime() / (1000 * 60 * 60 * 24))
+            )
+        }
+    })
+
+    console.log(eventWithRange);
+
+}
+
+function makeRange(a, b){
+    const arr = new Array();
+    for(let i = a; i <= b; i++){
+        arr.push(i);
+    }
+    return arr;
 }
