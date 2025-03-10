@@ -78,9 +78,11 @@ export function drawEvents(){
             mainArray.push(clusterArray);
         })
 
+        console.log(mainArray.flat())
+
         mainArray = linkSubarrays(mainArray.flat());
 
-        console.log(mainArray);
+        // console.log(mainArray);
 
         mainArray.forEach((clusterArray) => {
             let timeLine = computeTimeLine(clusterArray);

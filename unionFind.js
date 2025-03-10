@@ -25,3 +25,54 @@ export class UnionFind{
         }
     }
 }
+
+const events2 = [
+    [
+        {
+            id: "e1",
+            start: 1,
+            end: 3
+        },
+        {
+            id : "e2",
+            start: 1,
+            end : 3
+        },
+    ],
+    [
+        {
+            id: "e3",
+            start: 6,
+            end: 8
+        },
+        {
+            id: "e4",
+            start: 6,
+            end: 10
+        },
+    ],
+    [
+        {
+            id: "e4",
+            start: 6,
+            end: 10
+        },
+        {
+            id: "e5",
+            start: 9,
+            end: 9
+        },
+        {
+            id: "e6",
+            start: 10,
+            end: 17
+        }
+    ],
+    [
+        {
+            id: "e7",
+            start: 20,
+            end: 22
+        }
+    ]
+]
