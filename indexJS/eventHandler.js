@@ -63,14 +63,14 @@ export function drawEvents(){
 
     //sort the events by ascending order 
     displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate.getTime() - event2.startDate.getTime());
-    let eventMap = new Map(displayedEvents.map((event) => [event.uid, event]));
+    const eventMap = new Map(displayedEvents.map((event) => [event.uid, event]));
 
 
     //CollisionEventsArray is an array contaning array of events of the sort [[event1, event2], [event3]]
     //If two events intersect (such as event1 and event2) they will be placed in the same array.
-    let mainArray = [];
-    let collisionArray = [displayedEvents[0]];
-    let clusterArray = [];
+    const mainArray = [];
+    const collisionArray = [displayedEvents[0]];
+    const clusterArray = [];
 
     //We only proceed with the creation of the collisionEventsArray with when there are events displayed
     if(displayedEvents.length !== 0){
