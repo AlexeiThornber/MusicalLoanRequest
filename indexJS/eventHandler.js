@@ -3,6 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebas
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { displayedDates, convertDateToString, itemsPerDate } from "./drawCalendar.js";
 import { getItem, keyToCategoryConverter } from "../itemList.js";
+import { UnionFind } from "../unionFind.js";
 
 //Duplicate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -62,149 +63,111 @@ export function drawEvents(){
 
     //sort the events by ascending order 
     displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate.getTime() - event2.startDate.getTime());
+    const eventMap = new Map(displayedEvents.map((event) => [event.uid, event]));
 
 
     //CollisionEventsArray is an array contaning array of events of the sort [[event1, event2], [event3]]
     //If two events intersect (such as event1 and event2) they will be placed in the same array.
-    let collisionEventsArray = [];
-    let collisionEvents = [displayedEvents[0]];
+    const mainArray = [];
+    const collisionArray = [displayedEvents[0]];
+    const clusterArray = [];
 
     //We only proceed with the creation of the collisionEventsArray with when there are events displayed
     if(displayedEvents.length !== 0){
 
-        createCollisionArray(displayedEvents, 0, 1, collisionEvents, (arg) => {
-            collisionEventsArray.push(arg);
+        createCollisionArray(displayedEvents, 0, 1, collisionArray, clusterArray, (clusterArray) => {
+            mainArray.push(clusterArray);
         })
 
-        collisionEventsArray.forEach((collisionEvents) => {
-            const dates = findLargestDates(collisionEvents); //this is a tuple
-            const itemCollisionEvents = new Set();
-            const eventRowIndex = new Map();
-            let indexOfRefEvent = 0;
+        const flattenArray = mainArray.flat() 
 
-            iterateDates(dates[0], dates[1], (date) => {
-                const eventsOnDate = [];
-                for(let i = indexOfRefEvent; i < collisionEvents.length; i++){
-                    if(isEventOnDate(collisionEvents[i], date)){
-                        eventsOnDate.push(collisionEvents[i]);
-                    }
-                }
+        //Convert the main array to only take into account the uids of the events
+        //this is to avoid problems with references when dealing with the linkSubarray method
+        const uidArray = flattenArray.map((subarray) => subarray.map(elem => elem.uid));
 
-                let drawnDivs = 0;
-                eventsOnDate.size
-                eventsOnDate.forEach((event) => {
-                    let row = eventRowIndex.get(event.uid)
+        const linkedUidArrays = linkSubarrays(uidArray);
 
-                    if(row === drawnDivs){
-                        //draw the event here
-                        //as we are at the row where the event must be drawn
-                        drawnDivs++;
-                    }
-
-                })
-
-                customiseDiv(date, collisionEvents, itemCollisionEvents);
-            })
-
-            itemCollisionEvents.forEach((uid) => {
-                const eventsToEdit = document.querySelectorAll(`[id='${uid}']`);
-                eventsToEdit.forEach((eventToEdit) => {
-                    eventToEdit.style.backgroundColor += "red";
-                })
-            })
-
-        }) 
-    }
-}
-
-function createCollisionArray(displayedEvents ,idx1, idx2, collisionEvents, callback){
-    if(!(idx2 < displayedEvents.length)){
-        callback(collisionEvents);
-        return;
-    }
-    if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
-        collisionEvents.push(displayedEvents[idx2]);
-        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
-    }else{
-        callback(collisionEvents);
-        collisionEvents = [displayedEvents[idx2]];
-        createCollisionArray(displayedEvents, idx2, idx2 + 1, collisionEvents, callback);
-    }
-}
-
-function isEventOnDate(event, date){
-    return convertDateNoHours(event.startDate).getTime() <= date.getTime()
-        && date.getTime() <= convertDateNoHours(event.endDate).getTime()
-}
-
-
-function iterateDates(startDate, endDate, callback) {
-    let currentDate = convertDateNoHours(new Date(startDate));
-
-    while (currentDate.getTime() <= endDate.getTime()) {
-        callback(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-}
-
-/**
- * Customises the calendar date div with the number of events contained in the date 
- * @param {*} currentDate The current date of the modified calendar
- * @param {*} events The events that are in collsision date wise
- */
-function customiseDiv(currentDate, events, itemCollisionEvents){
-    const day = currentDate.getDate();
-    const month = currentDate.getMonth() + 1;
-    const year = currentDate.getFullYear();
-    const dateString = day + "_" + month + "_" + year;
-    const divId = document.getElementById(dateString);
-
-    if (divId) {
-        const childDiv = divId.querySelector(".date_content");
-        if(childDiv){
-            events.forEach((event) => {
-                const eventDiv = document.createElement("div");
-
-                eventDiv.setAttribute("id", event.uid);
-                eventDiv.setAttribute("class", "events");
-
-                const eventTitle = document.createElement("p");
-
-                eventTitle.textContent = event.title;
-
-                if(currentDate.getTime() < convertDateNoHours(event.startDate).getTime()
-                    || currentDate.getTime() > convertDateNoHours(event.endDate).getTime() ){
-                    eventDiv.style.visibility = 'hidden';
-                }else{
-                    removeItemsFromDate(event.items, dateString);
-                    if(checkItemsPerDate(dateString)){
-                        // eventDiv.style.backgroundColor = "red";
-                        itemCollisionEvents.add(event.uid);
-                    }
-                }
-
-                //Check that it is not the last day of the event
-                if (currentDate.getTime() !== convertDateNoHours(event.endDate).getTime() &&
-                    !divId.className.includes("Sun")) {
-                    eventDiv.style.width = "110%";
-                }
-
-                eventDiv.addEventListener('click', () => {
-                    window.location.href = `createEvent.html?id=${event.uid}`
-                })
-
-                eventDiv.append(eventTitle);
-                childDiv.append(eventDiv);
-                
-            })
+        for(const linkedUidArray of linkedUidArrays){
+            const timeline = computeTimeLine(linkedUidArray, id => eventMap.get(id));
+            drawTimeline(timeline, id => eventMap.get(id));
         }
-        childDiv.style.zIndex = "10";
+        console.log(itemsPerDate);
+
+        const collisionMap = new Map();
+
+        const addItemToCollisionNew = (dateString, item) =>  {
+                collisionMap.set(dateString, new Set([item]))
+        };
+
+        const addItemToCollision = (dateString, item) => {
+            let currentSet = collisionMap.get(dateString);
+            currentSet.add(item);
+            collisionMap.set(dateString, currentSet);
+        }
+
+        computeCollisions(
+            (dateString, item) => {
+                collisionMap.has(dateString) ? addItemToCollision(dateString, item) : addItemToCollisionNew(dateString, item);
+            }
+        )
+
+        if(collisionMap.size > 0) {
+            drawCollisions(collisionMap);
+        }
+
+        console.log(collisionMap);
     }
 }
 
-function drawEventDiv(){
-
+function createCollisionArray(displayedEvents ,idx1, idx2, collisionArray, clusterArray, addClusterToMain){
+    //Check that i didn't fuck up the indices (should never be called)
+    if(idx1 >= idx2){
+        console.log("indexes are fucked up");
+        return;
+    } 
+    //If we are in this case, that means that all the remaining events are contained in the 
+    //event at idx1, thefore the algorithm terminates and we can return.
+    if(!(idx2 < displayedEvents.length)){
+        clusterArray.push(collisionArray);
+        addClusterToMain(clusterArray);
+        return;
+    //This means that we are at the end of the cluster because 
+    //It is not the end of the displayed events list but we have found a singleton meaning there are no more conflicts
+    }else if(!isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2]) && collisionArray.length === 1){
+        clusterArray.push(collisionArray);
+        addClusterToMain(clusterArray);
+        idx1 = idx1 + 1;
+        idx2 = idx1 + 1;
+        collisionArray = [displayedEvents[idx1]];
+        clusterArray = [];
+        createCollisionArray(displayedEvents, idx1, idx2, collisionArray, clusterArray, addClusterToMain);
+    }else if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
+        collisionArray.push(displayedEvents[idx2]);
+        createCollisionArray(displayedEvents, idx1, idx2 + 1, collisionArray, clusterArray, addClusterToMain);
+    }else{
+        clusterArray.push(collisionArray);
+        idx1 = idx1 + 1;
+        idx2 = idx1 + 1;
+        collisionArray = [displayedEvents[idx1]];
+        createCollisionArray(displayedEvents, idx1, idx2, collisionArray, clusterArray, addClusterToMain);
+    }
 }
+
+function computeCollisions(addCollisionItem){
+
+    //items will be a pair of date (items[0] and object describing the inventory (items[1]))
+    for(const items of itemsPerDate){
+        const dateString = items[0];
+
+        for(const category of Object.entries(items[1])){
+            for(const item of Object.entries(category[1])){
+                if(item[1].quantity < 0){
+                    addCollisionItem(item[0], dateString);
+                }
+            }
+        }
+    }
+} 
 
 function removeItemsFromDate(items, dateString){
     const currentItems = JSON.parse(JSON.stringify(itemsPerDate.get(dateString)));
@@ -216,17 +179,6 @@ function removeItemsFromDate(items, dateString){
     itemsPerDate.set(dateString, currentItems);
 }
 
-function checkItemsPerDate(dateString){
-    const currentItems = itemsPerDate.get(dateString);
-    for(const [category, item] of Object.entries(currentItems)){
-        for(const [itemName, itemValue] of Object.entries(item)){
-            if(itemValue.quantity < 0){
-                return true
-            }
-        }
-    }
-    return false;
-}
 
 //Helper funtions to filter events
 function isEventContainedOnPage(event) {
@@ -245,23 +197,174 @@ function isEventContainedInAnother(eventComparedTo, eventToCheck){
     && (convertDateNoHours(eventComparedTo.endDate).getTime() >= convertDateNoHours(eventToCheck.startDate).getTime());
 }
 
-function findLargestDates(collisionEvents){
-    let dateS = collisionEvents[0].startDate;
-    let dateE = collisionEvents[0].endDate;
-    collisionEvents.forEach((event) =>{
+function linkSubarrays(arrays) {
+    const uf = new UnionFind();
 
-        if( event.startDate.getTime() < dateS.getTime()){
-            dateS = event.startDate; 
+    // Union elements in the same subarray
+    for (const subarray of arrays) {
+        for (let i = 1; i < subarray.length; i++) {
+            uf.union(subarray[0], subarray[i]);
         }
-        if(event.endDate.getTime() > dateE.getTime()){
-            dateE = event.endDate;
+    }
+
+    // Group elements by their root
+    const groups = new Map();
+    for (const subarray of arrays) {
+        for (const element of subarray) {
+            const root = uf.find(element);
+            if (!groups.has(root)) {
+                groups.set(root, new Set());
+            }
+            groups.get(root).add(element);
+        }
+    }
+
+    // Convert sets to arrays
+    const result = [];
+    for (const group of groups.values()) {
+        result.push(Array.from(group));
+    }
+
+    return result;
+}
+
+function computeTimeLine(eventsUid, getEvent){
+    const eventsWithRange = eventsUid.map(eventUid => {
+        return {
+            uid: eventUid,
+            range: makeRange(
+                convertDateToDay( getEvent(eventUid).startDate),
+                convertDateToDay( getEvent(eventUid).endDate)
+            )
         }
     })
-    return [convertDateNoHours(dateS), convertDateNoHours(dateE)];
+
+
+    const timeLineStart = Math.min(...eventsWithRange.map(event =>
+        convertDateToDay(getEvent(event.uid).startDate)));
+    const timeLineEnd = Math.max(...eventsWithRange.map(event => 
+        convertDateToDay(getEvent(event.uid).endDate)));
+    const timeLineLength = timeLineEnd - timeLineStart + 1;
+
+    const timeline = [...Array(timeLineLength).keys()].map( i => {
+        const day = timeLineStart + i;
+        const collisions = eventsWithRange.filter(eventUid => eventUid.range.includes(day)).length;
+        return{
+            day,
+            collisions
+        }
+    })
+
+    const timeLineHeight = Math.max(...timeline.map(day => day.collisions));
+
+    const eventTimeline = new Array(timeLineLength).fill("").map(() => new Array(timeLineHeight).fill(""));
+
+    //Iterate through all the events
+    for(const event of eventsWithRange){
+        const eventStart = convertDateToDay(getEvent(event.uid).startDate) - timeLineStart;
+        const eventEnd = convertDateToDay(getEvent(event.uid).endDate) - timeLineStart;
+
+        let avaidableTimelinePosition = 0;
+        for(let i = eventStart; i <= eventEnd; i++){
+            const index = eventTimeline[i].findIndex(eventSlot => eventSlot === "");
+            if(index > -1){
+                avaidableTimelinePosition = Math.max(avaidableTimelinePosition, index);
+            }
+        }
+
+        for(let i = eventStart; i <= eventEnd; i++){
+            eventTimeline[i][avaidableTimelinePosition] = (event.uid);
+        }
+
+    
+    }
+    return eventTimeline;
+}
+
+function makeRange(a, b){
+    const arr = new Array();
+    for(let i = a; i <= b; i++){
+        arr.push(i);
+    }
+    return arr;
+}
+
+function convertDateToDay(date){
+    return Math.floor( date.getTime() / (1000 * 60 * 60 * 24));  
 }
 
 //Helper function to convert Dates and no take into account the hours
 function convertDateNoHours(date){
     const newDate = new Date(date.getTime());
     return new Date(newDate.setHours(0,0,0,0));
+}
+
+function drawTimeline(timeline, getEvent){
+    const nbrDays = timeline.length;
+    const rows = timeline[0].length;
+
+    for(let day = 0; day < nbrDays; day++){
+        const dateString = convertDateToString(new Date(getEvent(timeline[0][0]).startDate.getTime() + 
+        (day * 24 * 60 * 60 * 1000)));
+        
+        for(let row = 0; row < rows; row++){
+            const currentEvent = getEvent(timeline[day][row]);
+
+            const isLast = day === nbrDays - 1 ? true : (timeline[day][row] === timeline[day + 1][row] ? false : true);
+            drawEvent(currentEvent, dateString ,isLast);
+
+            if(currentEvent !== undefined){
+                removeItemsFromDate(currentEvent.items, dateString);
+            }
+        }
+    }
+}
+
+function drawEvent(event, day, isLast){
+    const parentDiv = document.getElementById(day);
+    if(parentDiv){
+        const contentDiv = parentDiv.querySelector(".date_content");
+        if(contentDiv){
+            const eventDiv = document.createElement("div");
+
+            event === undefined ? eventDiv.setAttribute("id", "") : eventDiv.setAttribute("id", event.uid);
+            eventDiv.setAttribute("class", "events");
+            const eventTitle = document.createElement("p");
+            event === undefined ? eventTitle.textContent = "blank text content" : eventTitle.textContent = event.title;
+            event === undefined ? eventDiv.style.visibility = 'hidden' : null;
+
+
+            if(!(isLast) && !(parentDiv.className.includes("Sun"))){
+                eventDiv.style.width = "110%";
+            }
+
+            eventDiv.addEventListener('click', () => {
+                window.location.href = `createEvent.html?id=${event.uid}`
+            })
+
+            eventDiv.append(eventTitle);
+        
+            contentDiv.append(eventDiv);
+        }
+    }
+}
+
+function drawCollisions(collisionMap){
+    const footer = document.querySelector("footer");
+    footer.innerHTML = ''; // Clear all elements of the footer
+    for(const [itemName, dates] of collisionMap){
+
+        console.log(dates);
+
+        for(const date of dates){
+            const eventDivs = document.getElementById(date).querySelector(".date_num");
+            eventDivs.style.backgroundColor = 'red';
+            eventDivs.style.color = 'white';
+        }
+
+        let footerText = document.createElement("p");
+
+        footerText.textContent += `Conflict on item "${itemName}" on dates: [${Array.from(dates).join(" ,  ")}]`
+        footer.append(footerText);
+    }
 }

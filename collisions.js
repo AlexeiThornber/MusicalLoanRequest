@@ -52,6 +52,16 @@ const events = [
     id: "5",
     start: 3,
     end: 5
+  },
+  {
+    id: "6",
+    start: 6,
+    end: 7
+  },
+  {
+    id: "7",
+    start: 7,
+    end: 7
   }
 ]
 
@@ -85,6 +95,8 @@ const computeTimeline = (events) => {
       range: [...Array(event.end - event.start + 1).keys()].map(i => i + event.start)
     }
   });
+
+  console.log("events with ranges :"  + eventsWithRanges);
 
   // Max collision count
   const timelineStart = Math.min(...eventsWithRanges.map(event => event.start));
