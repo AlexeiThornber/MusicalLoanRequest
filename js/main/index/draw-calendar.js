@@ -1,12 +1,13 @@
-import { Items } from "../itemList.js";
-import { drawEvents } from "./eventHandler.js";
+import { Items } from '../../items/item-list.js';
+import { drawEvents } from "./event-handler.js";
+import { EventHelper } from '../helper/helper.js';
 
 const monthYearElem = document.getElementById('monthYear');
 const datesElem = document.getElementById('dates');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 
-export let itemsPerDate = new Map();
+export const itemsPerDate = new Map();
 
 let currentDate = new Date();
 
@@ -29,6 +30,9 @@ const updateCalendar = () => {
     let datesHTML = '';
 
     displayedDates.clear();
+    itemsPerDate.clear();
+    const footer = document.querySelector("footer");
+    footer.innerHTML = ''; // Clear all elements of the footer
 
     for (let i = firstDayIndex; i > 0; i--) {
         const prevDate = new Date(currentYear, currentMonth, 0 - i);
@@ -38,7 +42,7 @@ const updateCalendar = () => {
         <div class = "date_num">${prevDate.getDate() + 1}</div><div class = "date_content"></div></div>`;  
 
         prevDate.setDate(prevDate.getDate() + 1);
-        displayedDates.add(convertDateToString(prevDate));
+        displayedDates.add(EventHelper.convertDateToString(prevDate));
         itemsPerDate.set(stringDate, Items);
     }
 
@@ -52,7 +56,7 @@ const updateCalendar = () => {
         <div class = "date_num">${i}</div><div class = "date_content"></div></div>`
 
         itemsPerDate.set(stringDate, Items);
-        displayedDates.add(convertDateToString(date));
+        displayedDates.add(EventHelper.convertDateToString(date));
     }
 
     for(let i = 1; i <= 7 - lastDayIndex; i++){
@@ -64,7 +68,7 @@ const updateCalendar = () => {
         <div class = "date_num">${nextDate.getDate()}</div><div class = "date_content"></div></div>`;
 
         itemsPerDate.set(stringDate, Items);
-        displayedDates.add(convertDateToString(nextDate));
+        displayedDates.add(EventHelper.convertDateToString(nextDate));
     }
     datesElem.innerHTML = datesHTML;
 }
@@ -73,7 +77,6 @@ prevButton.addEventListener('click', () => {
     currentDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
     updateCalendar();
     drawEvents();
-
 });
 
 nextButton.addEventListener('click', () => {
@@ -85,11 +88,5 @@ nextButton.addEventListener('click', () => {
 updateCalendar();
 
 document.getElementById("switchPage").addEventListener('click', () => {
-    window.location.href = "createEvent.html";
+    window.location.href = "create-event.html";
 })
-
-
-//Helper funtions to convert dates to mm_dd_yyyy format
-export function convertDateToString(date){
-    return `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
-}
