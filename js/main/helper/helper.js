@@ -1,4 +1,4 @@
-export class IndexHelper{
+export class EventHelper{
     //TODO check if the push function is optimal
     static makeRange(a, b){
         const arr = new Array();
@@ -12,11 +12,10 @@ export class IndexHelper{
         return Math.floor( date.getTime() / (1000 * 60 * 60 * 24));  
     }
 
-    // //Helper function to convert Dates and no take into account the hours
-    // static convertDateNoHours(date){
-    //     const newDate = new Date(date.getTime());
-    //     return new Date(newDate.setHours(0,0,0,0));
-    // }
+    //Helper funtions to convert dates to mm_dd_yyyy format
+    static convertDateToString(date){
+        return `${date.getDate()}_${date.getMonth() + 1}_${date.getFullYear()}`;
+    }
 
     /**
      * Helper function to check whether the startDate of an event is contained in another event
