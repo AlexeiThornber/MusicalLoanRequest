@@ -71,7 +71,6 @@ const updateCalendar = () => {
         displayedDates.add(EventHelper.convertDateToString(nextDate));
     }
     datesElem.innerHTML = datesHTML;
-    console.log(itemsPerDate);
 }
 
 prevButton.addEventListener('click', () => {

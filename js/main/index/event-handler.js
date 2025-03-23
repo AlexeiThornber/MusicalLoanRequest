@@ -116,8 +116,6 @@ export function drawEvents(){
         if(collisionMap.size > 0) {
             drawCollisions(collisionMap);
         }
-
-        // console.log(collisionMap);
     }
 }
 
@@ -269,8 +267,6 @@ function drawTimeline(timeline, getEvent){
     const nbrDays = timeline.length;
     const rows = timeline[0].length;
 
-    console.log(timeline);
-
     for(let day = 0; day < nbrDays; day++){
         const dateString = EventHelper.convertDateToString(new Date(getEvent(timeline[0][0]).startDate.getTime() + 
         (day * 24 * 60 * 60 * 1000)));
@@ -316,8 +312,6 @@ function drawEvent(event, day){
 function drawCollisions(collisionMap){
     const footer = document.querySelector("footer");
     for(const [itemName, dates] of collisionMap){
-
-        console.log(dates);
 
         for(const date of dates){
             const eventDivs = document.getElementById(date).querySelector(".date_num");
