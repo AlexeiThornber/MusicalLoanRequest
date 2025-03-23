@@ -1,8 +1,9 @@
-import { mapSelectedItems, saveSelection } from "./html-handler.js";
+import { mapSelectedItems } from "./html-handler.js";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, getDoc, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { getItem } from '../../items/item-list.js';
+import { StringHelper } from "../helper/helper.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -56,9 +57,9 @@ function addEditButton(){
     let end = new Date(endDate + "T" + endTime + ":00"); 
 
   
-    if(isStringNull(title) || isStringNull(beneficiary) || 
-    isStringNull(startDate) || isStringNull(startTime) || 
-    isStringNull(endDate) || isStringNull(endTime) || mapSelectedItems.size === 0){
+    if(StringHelper.isStringNull(title) || StringHelper.isStringNull(beneficiary) || 
+    StringHelper.isStringNull(startDate) || StringHelper.isStringNull(startTime) || 
+    StringHelper.isStringNull(endDate) || StringHelper.isStringNull(endTime) || mapSelectedItems.size === 0){
       alert("You haven't filled out all the necessary fields");
     }else if(start.getTime() > end.getTime()){
       alert("The event can't end before it starts :)")
@@ -86,13 +87,8 @@ function addEditButton(){
 })
 }
 
-//Helper funtion
-function isStringNull(str){
-    return str === null || str === undefined || str.trim() === '';
-}
 
 //TODO put this into another file as this manages the html
-
 async function loadEventToEdit(eventId){
   console.log(eventId);
   const docRef = doc(db, "events", eventId);

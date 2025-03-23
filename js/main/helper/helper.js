@@ -28,3 +28,9 @@ export class EventHelper{
         && (this.convertDateToDay(eventComparedTo.endDate) >= this.convertDateToDay(eventToCheck.startDate));
     }
 }
+
+export class StringHelper{
+    static isStringNull(str){
+        return str === null || str === undefined || str.trim() === '';
+    }
+}
