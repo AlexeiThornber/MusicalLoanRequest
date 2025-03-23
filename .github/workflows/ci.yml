@@ -1,25 +1,25 @@
-name: Run unit Tests
+name: Run Jest Tests
 
 on:
   pull_request:
     branches:
-      - main
+      - main  # Change this if your default branch is different
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ubuntu-latest  # Runs on the latest Ubuntu environment
 
     steps:
-      name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Checks out your code
 
-      name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
-      
-      name: Install dependencies
-      run: npm install
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18  # Adjust to your project's Node.js version
 
-      name: Run unit Tests
-      run: npm test
+      - name: Install dependencies
+        run: npm install  # Or yarn install, depending on your setup
+
+      - name: Run Jest tests
+        run: npm test  # Or "yarn test" if you're using Yarn
