@@ -1,9 +1,10 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { displayedDates, convertDateToString, itemsPerDate } from "./drawCalendar.js";
-import { getItem, keyToCategoryConverter } from "../itemList.js";
-import { UnionFind } from "../unionFind.js";
+import { displayedDates, convertDateToString, itemsPerDate } from "./draw-calendar.js";
+import { keyToCategoryConverter } from "../../items/item-list.js";
+import { UnionFind } from "../../modules/union-find.js";
+import { IndexHelper } from "../helper/helper.js";
 
 //Duplicate code, a bit annoying but okay...
 const firebaseConfig = {
@@ -56,10 +57,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-
 export function drawEvents(){
     //Filter the events that are not displayed (the ones that are not on the current month)
-    displayedEvents = listLoadedEvents.filter((event) => isEventContainedOnPage(event));
+    displayedEvents = listLoadedEvents.filter((event) => { 
+        return displayedDates.has(convertDateToString(event.startDate)) 
+        || displayedDates.has(convertDateToString(event.endDate));
+    });
 
     //sort the events by ascending order 
     displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate.getTime() - event2.startDate.getTime());
@@ -133,7 +136,7 @@ function createCollisionArray(displayedEvents ,idx1, idx2, collisionArray, clust
         return;
     //This means that we are at the end of the cluster because 
     //It is not the end of the displayed events list but we have found a singleton meaning there are no more conflicts
-    }else if(!isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2]) && collisionArray.length === 1){
+    }else if(!IndexHelper.isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2]) && collisionArray.length === 1){
         clusterArray.push(collisionArray);
         addClusterToMain(clusterArray);
         idx1 = idx1 + 1;
@@ -141,7 +144,7 @@ function createCollisionArray(displayedEvents ,idx1, idx2, collisionArray, clust
         collisionArray = [displayedEvents[idx1]];
         clusterArray = [];
         createCollisionArray(displayedEvents, idx1, idx2, collisionArray, clusterArray, addClusterToMain);
-    }else if(isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
+    }else if(IndexHelper.isEventContainedInAnother(displayedEvents[idx1], displayedEvents[idx2])){
         collisionArray.push(displayedEvents[idx2]);
         createCollisionArray(displayedEvents, idx1, idx2 + 1, collisionArray, clusterArray, addClusterToMain);
     }else{
@@ -180,22 +183,16 @@ function removeItemsFromDate(items, dateString){
 }
 
 
-//Helper funtions to filter events
-function isEventContainedOnPage(event) {
-    return displayedDates.has(convertDateToString(event.startDate)) 
-    || displayedDates.has(convertDateToString(event.endDate));
-}
-
-/**
- * Helper function to check whether the startDate of an event is contained in another event
- * @param {*} eventComparedTo The "parent" event that sets the benchmark
- * @param {*} eventToCheck The event to check
- * If the startDate of the eventToCheck is in the  
- */
-function isEventContainedInAnother(eventComparedTo, eventToCheck){
-    return (convertDateNoHours(eventComparedTo.startDate).getTime() <= convertDateNoHours(eventToCheck.startDate).getTime())
-    && (convertDateNoHours(eventComparedTo.endDate).getTime() >= convertDateNoHours(eventToCheck.startDate).getTime());
-}
+// /**
+//  * Helper function to check whether the startDate of an event is contained in another event
+//  * @param {*} eventComparedTo The "parent" event that sets the benchmark
+//  * @param {*} eventToCheck The event to check
+//  * If the startDate of the eventToCheck is in the  
+//  */
+// function isEventContainedInAnother(eventComparedTo, eventToCheck){
+//     return (convertDateNoHours(eventComparedTo.startDate).getTime() <= convertDateNoHours(eventToCheck.startDate).getTime())
+//     && (convertDateNoHours(eventComparedTo.endDate).getTime() >= convertDateNoHours(eventToCheck.startDate).getTime());
+// }
 
 function linkSubarrays(arrays) {
     const uf = new UnionFind();
@@ -232,18 +229,18 @@ function computeTimeLine(eventsUid, getEvent){
     const eventsWithRange = eventsUid.map(eventUid => {
         return {
             uid: eventUid,
-            range: makeRange(
-                convertDateToDay( getEvent(eventUid).startDate),
-                convertDateToDay( getEvent(eventUid).endDate)
+            range: IndexHelper.makeRange(
+                IndexHelper.convertDateToDay( getEvent(eventUid).startDate),
+                IndexHelper.convertDateToDay( getEvent(eventUid).endDate)
             )
         }
     })
 
 
     const timeLineStart = Math.min(...eventsWithRange.map(event =>
-        convertDateToDay(getEvent(event.uid).startDate)));
+        IndexHelper.convertDateToDay(getEvent(event.uid).startDate)));
     const timeLineEnd = Math.max(...eventsWithRange.map(event => 
-        convertDateToDay(getEvent(event.uid).endDate)));
+        IndexHelper.convertDateToDay(getEvent(event.uid).endDate)));
     const timeLineLength = timeLineEnd - timeLineStart + 1;
 
     const timeline = [...Array(timeLineLength).keys()].map( i => {
@@ -261,8 +258,8 @@ function computeTimeLine(eventsUid, getEvent){
 
     //Iterate through all the events
     for(const event of eventsWithRange){
-        const eventStart = convertDateToDay(getEvent(event.uid).startDate) - timeLineStart;
-        const eventEnd = convertDateToDay(getEvent(event.uid).endDate) - timeLineStart;
+        const eventStart = IndexHelper.convertDateToDay(getEvent(event.uid).startDate) - timeLineStart;
+        const eventEnd = IndexHelper.convertDateToDay(getEvent(event.uid).endDate) - timeLineStart;
 
         let avaidableTimelinePosition = 0;
         for(let i = eventStart; i <= eventEnd; i++){
@@ -281,23 +278,24 @@ function computeTimeLine(eventsUid, getEvent){
     return eventTimeline;
 }
 
-function makeRange(a, b){
-    const arr = new Array();
-    for(let i = a; i <= b; i++){
-        arr.push(i);
-    }
-    return arr;
-}
+// //TODO check if the push function is optimal
+// function makeRange(a, b){
+//     const arr = new Array();
+//     for(let i = a; i <= b; i++){
+//         arr.push(i);
+//     }
+//     return arr;
+// }
 
-function convertDateToDay(date){
-    return Math.floor( date.getTime() / (1000 * 60 * 60 * 24));  
-}
+// function convertDateToDay(date){
+//     return Math.floor( date.getTime() / (1000 * 60 * 60 * 24));  
+// }
 
-//Helper function to convert Dates and no take into account the hours
-function convertDateNoHours(date){
-    const newDate = new Date(date.getTime());
-    return new Date(newDate.setHours(0,0,0,0));
-}
+// //Helper function to convert Dates and no take into account the hours
+// function convertDateNoHours(date){
+//     const newDate = new Date(date.getTime());
+//     return new Date(newDate.setHours(0,0,0,0));
+// }
 
 function drawTimeline(timeline, getEvent){
     const nbrDays = timeline.length;
@@ -339,7 +337,7 @@ function drawEvent(event, day, isLast){
             }
 
             eventDiv.addEventListener('click', () => {
-                window.location.href = `createEvent.html?id=${event.uid}`
+                window.location.href = `create-vent.html?id=${event.uid}`
             })
 
             eventDiv.append(eventTitle);

@@ -1,8 +1,8 @@
-import { mapSelectedItems, saveSelection } from "./HTMLHandler.js";
+import { mapSelectedItems, saveSelection } from "./html-handler.js";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, getDoc, Timestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { getItem } from '../itemList.js';
+import { getItem } from '../../items/item-list.js';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 

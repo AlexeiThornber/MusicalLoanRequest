@@ -1,5 +1,5 @@
-import { Items } from "../itemList.js";
-import { drawEvents } from "./eventHandler.js";
+import { Items } from '../../items/item-list.js';
+import { drawEvents } from "./event-handler.js";
 
 const monthYearElem = document.getElementById('monthYear');
 const datesElem = document.getElementById('dates');
@@ -85,7 +85,7 @@ nextButton.addEventListener('click', () => {
 updateCalendar();
 
 document.getElementById("switchPage").addEventListener('click', () => {
-    window.location.href = "createEvent.html";
+    window.location.href = "create-event.html";
 })
 
 

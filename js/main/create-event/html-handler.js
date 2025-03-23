@@ -1,4 +1,4 @@
-import { keyToValueConverter, Items } from '../itemList.js';
+import { keyToValueConverter, Items } from '../../items/item-list.js';
 
 //prevent from the buttons to behave like a form
 document.getElementById('createEventForm').addEventListener('submit', function(event) {
