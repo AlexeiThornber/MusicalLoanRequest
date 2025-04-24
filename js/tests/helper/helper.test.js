@@ -43,3 +43,13 @@ test(('string is not null works'), () => {
     expect(StringHelper.isStringNull(undefinedString)).toBe(true);
     expect(StringHelper.isStringNull(empytString)).toBe(true);
 })
+
+test(('first day of month converter works accordingly'), () => {
+    const day = 1; //monday
+    const month = 3; //April
+    const year = 2025;
+
+    const expectedDate = new Date(1743984000000);
+
+    expect(EventHelper.getFirstDayOfMonth(day, month, year).getTime()).toBe(expectedDate.getTime());
+})

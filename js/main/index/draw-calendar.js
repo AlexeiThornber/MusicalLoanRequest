@@ -9,7 +9,7 @@ const nextButton = document.getElementById('nextButton');
 
 export const itemsPerDate = new Map();
 
-let currentDate = new Date();
+export let currentDate = new Date();
 
 export const displayedDates = new Set();
 

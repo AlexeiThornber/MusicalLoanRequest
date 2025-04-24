@@ -1,7 +1,7 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-import { displayedDates, itemsPerDate } from "./draw-calendar.js";
+import { displayedDates, itemsPerDate, currentDate } from "./draw-calendar.js";
 import { keyToCategoryConverter } from "../../items/item-list.js";
 import { UnionFind } from "../../modules/union-find.js";
 import { EventHelper } from "../helper/helper.js";
@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "events"));
         querySnapshot.forEach((doc) => {
-           
             const data = doc.data();
 
             const mapItems = new Map();
@@ -61,8 +60,19 @@ export function drawEvents(){
     //Filter the events that are not displayed (the ones that are not on the current month)
     displayedEvents = listLoadedEvents.filter((event) => { 
         return displayedDates.has(EventHelper.convertDateToString(event.startDate)) 
-        || displayedDates.has(EventHelper.convertDateToString(event.endDate));
+        || displayedDates.has(EventHelper.convertDateToString(event.endDate))
+        || event.repeating == true;
     });
+
+    // Handle repeating events
+    displayedEvents.map((event) => {
+        if(event.repeating == true){
+            displayedEvents.push(EventHelper.generateRepeatedEvents(event, currentDate, displayedDates));
+        }
+    })
+
+    displayedEvents = displayedEvents.flat();
+
 
     console.log(displayedEvents);
 
