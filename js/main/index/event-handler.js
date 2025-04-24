@@ -20,6 +20,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+export const clonedUidMap = new Map();
+export const clonedUidTag = "01";
+
+
 //All events loaded from firebase
 const listLoadedEvents = [];
 let displayedEvents;
@@ -68,6 +72,7 @@ export function drawEvents(){
     displayedEvents.map((event) => {
         if(event.repeating == true){
             displayedEvents.push(EventHelper.generateRepeatedEvents(event, currentDate, displayedDates));
+            displayedEvents.splice(displayedEvents.indexOf(event), 1);
         }
     })
 
@@ -94,11 +99,16 @@ export function drawEvents(){
             mainArray.push(clusterArray);
         })
 
+        console.log(mainArray);
         const flattenArray = mainArray.flat() 
+
+        console.log(flattenArray);
 
         //Convert the main array to only take into account the uids of the events
         //this is to avoid problems with references when dealing with the linkSubarray method
         const uidArray = flattenArray.map((subarray) => subarray.map(elem => elem.uid));
+
+        console.log(uidArray);
 
         const linkedUidArrays = linkSubarrays(uidArray);
 
@@ -303,15 +313,17 @@ function drawEvent(event, day){
         const contentDiv = parentDiv.querySelector(".date_content");
         if(contentDiv){
             const eventDiv = document.createElement("div");
+            const eventUid = event === undefined ? "" : event.uid.slice(0,2) === clonedUidTag ? clonedUidMap.get(event.uid) : event.uid;
 
-            event === undefined ? eventDiv.setAttribute("id", "") : eventDiv.setAttribute("id", event.uid);
+            eventDiv.setAttribute("id", eventUid);
+        
             eventDiv.setAttribute("class", "events");
             const eventTitle = document.createElement("p");
             event === undefined ? eventTitle.textContent = "blank text content" : eventTitle.textContent = event.title;
             event === undefined ? eventDiv.style.visibility = 'hidden' : null;
 
             eventDiv.addEventListener('click', () => {
-                window.location.href = `create-event.html?id=${event.uid}`
+                window.location.href = `create-event.html?id=${eventUid}`
             })
 
             eventDiv.append(eventTitle);

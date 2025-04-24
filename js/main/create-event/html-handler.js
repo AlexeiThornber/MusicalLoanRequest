@@ -6,7 +6,6 @@ document.getElementById('createEventForm').addEventListener('submit', function(e
 });
 
 
-//Change this to a map
 export const mapSelectedItems = new Map();
 
 /**

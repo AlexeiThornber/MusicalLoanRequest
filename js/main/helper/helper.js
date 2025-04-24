@@ -1,3 +1,5 @@
+import { clonedUidMap, clonedUidTag } from "../index/event-handler.js";
+
 export class EventHelper{
     //TODO check if the push function is optimal
     static makeRange(a, b){
@@ -48,21 +50,22 @@ export class EventHelper{
         startDate.setHours(event.startDate.getHours(), event.startDate.getMinutes());
         endDate.setHours(event.endDate.getHours(), event.endDate.getMinutes());
 
-        const prevDateStart = new Date(startDate.getDate() - 7); 
-        const prevDateEnd = new Date(endDate.getDate() - 7);
+        startDate.setDate(new Date(startDate.getDate() - 7));
+        endDate.setDate(new Date(endDate.getDate() - 7));
 
-        if( displayedDates.has(EventHelper.convertDateToString(prevDateEnd))){
-            const copiedEvent = { ...event, startDate: new Date(prevDateStart), endDate: new Date(prevDateEnd), uid: window.crypto.randomUUID() };
-            repeatedEvents.push(copiedEvent);
-        }
+        do{
+            const clonedKey = clonedUidTag + "-" + window.crypto.randomUUID();
 
-        while(displayedDates.has(EventHelper.convertDateToString(startDate))){
-            const copiedEvent = { ...event, startDate: new Date(startDate), endDate: new Date(endDate), uid: window.crypto.randomUUID() };
+            const copiedEvent = { ...event, startDate: new Date(startDate), endDate: new Date(endDate), uid: clonedKey};
+
+            clonedUidMap.set(clonedKey, event.uid);
+
             repeatedEvents.push(copiedEvent);
 
             startDate.setDate(startDate.getDate() + 7);
             endDate.setDate(endDate.getDate() + 7);
-        }
+        }while(displayedDates.has(EventHelper.convertDateToString(startDate)))
+        
 
         return repeatedEvents;
     }

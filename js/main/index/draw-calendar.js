@@ -73,20 +73,24 @@ const updateCalendar = () => {
     datesElem.innerHTML = datesHTML;
 }
 
-prevButton.addEventListener('click', () => {
-    currentDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
+//had to add this check since i added imports to event (don't ask why)
+if (window.location.pathname.endsWith("index.html")) {
+
+    prevButton.addEventListener('click', () => {
+        currentDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
+        updateCalendar();
+        drawEvents();
+    });
+    
+    nextButton.addEventListener('click', () => {
+        currentDate = new Date(currentDate.setMonth(currentDate.getMonth() + 1));
+        updateCalendar();
+        drawEvents();
+    });
+    
     updateCalendar();
-    drawEvents();
-});
-
-nextButton.addEventListener('click', () => {
-    currentDate = new Date(currentDate.setMonth(currentDate.getMonth() + 1));
-    updateCalendar();
-    drawEvents();
-});
-
-updateCalendar();
-
-document.getElementById("switchPage").addEventListener('click', () => {
-    window.location.href = "create-event.html";
-})
+    
+    document.getElementById("switchPage").addEventListener('click', () => {
+        window.location.href = "create-event.html";
+    });
+}

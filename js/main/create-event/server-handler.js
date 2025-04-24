@@ -109,6 +109,10 @@ function showLoadedEvent(event){
   document.getElementById("beneficiary").value = event.beneficiary;
   document.getElementById("eventDescription").value = event.description;
 
+  if(event.repeating){
+    document.getElementById("eventRepeating").checked = true;
+  }
+
   // Sanitize the list of items received as JSON into a map
   mapSelectedItems.clear();
 
