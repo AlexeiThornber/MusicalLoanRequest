@@ -126,7 +126,6 @@ export function saveSelection(){
         </li>`
     
         list.innerHTML += newItemHTML; 
-        // console.log(mapSelectedItems);
     }
 }
 

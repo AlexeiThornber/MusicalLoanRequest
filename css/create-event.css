@@ -76,8 +76,27 @@ section{
     padding: 20px;
 }
 
+.repeating{
+    display: flex;
+    width: fit-content;
+    flex-direction: column;
+    padding: 20px;
+    width: 250px;
+    cursor: pointer;
+}
+
+.repeating label{
+    text-align: center;
+    cursor: pointer;
+}
+
+.repeating input{
+    margin-top: 5px;
+    cursor: pointer;
+}
+
 .description textarea{
-    resize: none;
+    resize: vertical;
     height: auto;
 }
 
