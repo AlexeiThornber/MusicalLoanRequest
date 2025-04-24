@@ -34,11 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     eventData.then(event => showLoadedEvent(event));
 
   }
-  addEditButton();
+  addEventUploadButton();
   addMethodsToButtons();
 })
 
-function addEditButton(){
+function addEventUploadButton(){
   document.getElementById("create-event").addEventListener('click', async () =>{
 
     const title = document.getElementById("eventTitle").value;    
@@ -48,9 +48,12 @@ function addEditButton(){
     const endDate = document.getElementById("eventDateEnd").value;
     const endTime = document.getElementById("eventTimeEnd").value;
     const description = document.getElementById("eventDescription").value;
+    const repeating = document.getElementById("eventRepeating").checked;
+
     if(eventUID === ""){
       eventUID = window.crypto.randomUUID();
     }
+
 
     let start = new Date(startDate + "T" + startTime + ":00");
     let end = new Date(endDate + "T" + endTime + ":00"); 
@@ -71,6 +74,7 @@ function addEditButton(){
               beneficiary: beneficiary,
               start: Timestamp.fromDate(start),
               end: Timestamp.fromDate(end),
+              repeating: repeating,
               description: description,
               items: Array.from(mapSelectedItems.entries()).map(([key, value]) => ({ key, value })),
             });
@@ -82,7 +86,6 @@ function addEditButton(){
             console.error("Error adding document: ", e);
           }
     }
-
 })
 }
 
@@ -148,6 +151,10 @@ function modifyToEditEvent(){
 
 }
 
+
+/**
+ * The following methods add the functionality to buttons in the document
+ */
 function addDeleteButton(){
   const bottomButtons = document.querySelector(".bottom-buttons");
   const newButtonDiv = `<div class = "delete-button"><button id = "del-button">Delete Event</button></div>`

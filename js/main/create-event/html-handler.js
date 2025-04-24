@@ -103,7 +103,6 @@ window.addHTMLOptions = addHTMLOptions;
 /**
  * The following code handles the save button when choosing an item
  */
-
 export function saveSelection(){
     const itemSelection = document.getElementById("item-selector");
     const selectedItem = itemSelection.options[itemSelection.selectedIndex];

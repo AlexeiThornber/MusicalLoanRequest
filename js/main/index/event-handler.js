@@ -29,8 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "events"));
         querySnapshot.forEach((doc) => {
-            // You can add code here to display the events on your page
-
+           
             const data = doc.data();
 
             const mapItems = new Map();
@@ -43,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 beneficiary: data.beneficiary,
                 startDate: new Date(data.start.seconds * 1000), //*1000 to add the missing nanoseconds
                 endDate: new Date(data.end.seconds * 1000),
+                repeating: data.repeating,
                 description: data.description,
                 items: mapItems,
                 uid: data.uid
@@ -63,6 +63,8 @@ export function drawEvents(){
         return displayedDates.has(EventHelper.convertDateToString(event.startDate)) 
         || displayedDates.has(EventHelper.convertDateToString(event.endDate));
     });
+
+    console.log(displayedEvents);
 
     //sort the events by ascending order 
     displayedEvents = displayedEvents.sort((event1, event2) => event1.startDate.getTime() - event2.startDate.getTime());
