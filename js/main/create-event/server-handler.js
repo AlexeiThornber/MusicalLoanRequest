@@ -24,8 +24,6 @@ export const db = getFirestore(app);
 
 let eventUID = "";
 
-const itemCategories = ["Sound & Instruments", "Microphones", "Cables"];
-
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = Array.from(new URLSearchParams(window.location.search).entries());
 
@@ -37,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   }
   addEditButton();
+  addMethodsToButtons();
 })
 
 function addEditButton(){
@@ -159,4 +158,30 @@ function addDeleteButton(){
     alert("Succefully deleted document with id: " + eventUID )
     window.location.href = "index.html";
   })
+}
+
+function addMethodsToButtons(){
+  //Add functions to buttons
+  document.querySelector(".second-button button").addEventListener("click", () => window.location.href = "index.html")
+  
+  //Close pop-up
+  document.querySelector(".controls .close-button").addEventListener("click", () => {
+          document.getElementById('popup').classList.remove('active');
+          document.getElementById('overlay').classList.remove('active');
+  })
+  
+  //Open pop-up
+  document.querySelector(".main-button button").addEventListener("click", () => {
+      event.preventDefault();
+      document.getElementById('popup').classList.add('active');
+      document.getElementById('overlay').classList.add('active');
+  })
+  
+  //Save selection
+  document.querySelector(".controls .save-button").addEventListener("click", () =>{
+      saveSelection();
+      document.getElementById('popup').classList.remove('active');
+      document.getElementById('overlay').classList.remove('active');
+  })
+  
 }

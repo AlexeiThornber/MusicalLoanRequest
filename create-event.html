@@ -6,7 +6,6 @@
         <link rel="stylesheet" href="css/create-event.css">
         <link rel = "icon" type = "image/x-icon" href = "res/Screenshot_20250302_174951.png">
         <script src = "js/main/create-event/html-handler.js" type = "module" defer></script>
-        <script src = "js/main/create-event/nav-handler.js" defer></script>
         <script src = "js/main/create-event/server-handler.js" type = "module" defer></script>
     </head>
     <body>
@@ -43,12 +42,12 @@
                         </div>
                     </div>
                     <div class = "repeating">
-                        <label for = "eventRepeating"> Make event repeating</label>
+                        <label for = "eventRepeating">Make event repeating</label>
                         <input type = "checkbox" id = "eventRepeating" name = "eventRepeating">
                     </div>
                 </div>
                 <div class = "main main-button">
-                    <button onclick="openPopup()">Add Item</button>
+                    <button>Add Item</button>
                     <ul id = "item-list">
                     </ul>
                 </div>
@@ -58,7 +57,7 @@
                 </div>
                 <div class = "main bottom-buttons">
                     <div class = "second-button">
-                        <button onclick="goBack()">Cancel</button>
+                        <button>Cancel</button>
                     </div>
                     <div class = "main-button">
                         <button id = "create-event">Create event</button>
@@ -93,8 +92,8 @@
                 </div>
             </div>
             <div class = "controls">
-                <button class = "close-button" onclick="closePopup();">Close</buttons>
-                <button class = "save-button" onclick="saveSelection(); closePopup();">Save</buttons>
+                <button class = "close-button">Close</buttons>
+                <button class = "save-button">Save</buttons>
             </div>
         </div>
     </body>
